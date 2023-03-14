@@ -1,5 +1,6 @@
 # IT2002 - The App
  App for NUS students to view and book nearby properties
+ Created by Group 05
 
 <!-- write about how to create their own pipenv, then install flask and python -->
 
