@@ -1,5 +1,11 @@
 # IT2002 - The App
  App for NUS students to view and book nearby properties, created by Group 05
+ 
+# Github Guides
+ - Start Guide -> https://docs.github.com/en/get-started/quickstart/hello-world#next-steps
+ - Github Flow -> https://docs.github.com/en/get-started/quickstart/github-flow
+ - Contributing to projects -> https://docs.github.com/en/get-started/quickstart/contributing-to-projects
+ - General Quickstart links -> https://docs.github.com/en/get-started/quickstart
 
 <!-- write about how to create their own pipenv, then install flask and python -->
 
