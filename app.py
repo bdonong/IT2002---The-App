@@ -238,6 +238,14 @@ def generate_create_table_statement(table: Dict):
     statement = statement[:-1] + ");"
     return sqlalchemy.text(statement)
 
+# JUST TESTING
+def insert_values_into_users(table: Dict):
+    table_name = table["name"]
+    # ? Table body itself is a JSON object mapping field/column names to their values
+    table_body = table["body"]
+    statement = f"INSERT INTO users VALUES('')"
+    return sqlalchemy.text(statement)
+
 # ? This method can be used by waitress-serve CLI 
 def create_app():
    return app
