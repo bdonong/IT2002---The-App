@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS booking (
   status VARCHAR(16) CHECK(status = 'processing', status = 'confirmed')
 );
 
-
 CREATE TABLE IF NOT EXISTS transaction (
   transaction_id SERIAL PRIMARY KEY,
   booking_id INTEGER REFERENCES bookings (booking_id),
@@ -59,10 +58,5 @@ CREATE TABLE IF NOT EXISTS administrator (
   permissions TEXT
   PRIMARY KEY(user_id, password)
   FOREIGN KEY(user_id, password) REFERENCES user (user_id, password)
-);
-
-	
-	
-	
 );
 
