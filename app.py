@@ -5,7 +5,7 @@ import json
 # ? flask - library used to write REST API endpoints (functions in simple words) to communicate with the client (view) application's interactions
 # ? request - is the default object used in the flask endpoints to get data from the requests
 # ? Response - is the default HTTP Response object, defining the format of the returned data by this api
-from flask import Flask, request, Response
+from flask import Flask, request, Response, render_template, request, redirect, url_for
 # ? sqlalchemy is the main library we'll use here to interact with PostgresQL DBMS
 import sqlalchemy
 # ? Just a class to help while coding by suggesting methods etc. Can be totally removed if wanted, no change
@@ -245,6 +245,60 @@ def insert_values_into_users(table: Dict):
     table_body = table["body"]
     statement = f"INSERT INTO users VALUES('')"
     return sqlalchemy.text(statement)
+
+
+# Create a route for the login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Call the sign_in function and pass user_id and password
+        user_id = request.form['user_id']
+        password = request.form['password']
+        if sign_in(user_id, password):
+            # Redirect to the main page if login is successful
+            return redirect(url_for('main_page'))
+        else:
+            # Show an error message if login fails
+            error = 'Invalid user ID or password. Please try again.'
+            return render_template('login.html', error=error)
+    else:
+        return render_template('login.html')
+
+
+# Create a route for the sign up page
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        # Call the sign_up function and pass user_id and password
+        user_id = request.form['user_id']
+        password = request.form['password']
+        if sign_up(user_id, password):
+            # Redirect to the login page after successful signup
+            return redirect(url_for('login'))
+        else:
+            # Show an error message if signup fails
+            error = 'User ID already exists. Please choose a different one.'
+            return render_template('signup.html', error=error)
+    else:
+        return render_template('signup.html')
+
+def sign_in(user_id, password):
+    """
+    Takes user_id and password as input and checks if the user exists in the database.
+    Return True if the user exists and the password is correct otherwise, return False.
+    """
+    # Add sql code here
+    pass
+
+def sign_up(user_id, password):
+    """
+    Takes user_id and password and creates a new user
+    Add fields for email, phone number, gender & age
+    Return True if the user exists and the password is correct otherwise, return False.
+    """
+    # Add sql code here
+    pass
+
 
 # ? This method can be used by waitress-serve CLI 
 def create_app():
