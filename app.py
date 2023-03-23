@@ -248,8 +248,11 @@ def insert_values_into_users(table: Dict):
 
 @app.route("/")
 def landing_page():
-    return render_template('home.html')
+    return render_template('landing.html')
 
+@app.route("/home")
+def home():
+    return render_template('home.html')
 
 # Create a route for the login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -259,10 +262,10 @@ def login():
         user_id = request.form['user_id']
         password = request.form['password']
         resp = make_response()
-        resp.set_cookie('Login', user_id, secure=true)
+        resp.set_cookie('Login', user_id, secure = True)
         if sign_in(user_id, password):
             # Redirect to the main page if login is successful
-            return redirect(url_for('main_page'))
+            return redirect(url_for('home'))
         else:
             # Show an error message if login fails
             error = 'Invalid user ID or password. Please try again.'
@@ -293,20 +296,16 @@ def get_password(user_id):
     statement = sqlalchemy.text(password_query)
     res = db.execute(statement)
     db.commit()
-    password = res[0]
-    #return data
+    password = res[0]['password_hash']
+    return password
 
 def sign_in(user_id, password):
     """
     Takes user_id and password as input and checks if the user exists in the database.
     Return True if the user exists and the password is correct otherwise, return False.
     """
-    
-
-    
-                    
-    user_command = "INSERT INTO users VALUES(user_id, password)"
-    pass
+    stored_password= get_password(user_id)
+    return password == stored_password
 
 def sign_up(user_id, password):
     """

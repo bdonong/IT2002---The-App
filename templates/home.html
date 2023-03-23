@@ -3,36 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NUSrentals - Landing Page</title>
-    <!-- Add CSS Here -->
+    <title>NUSrentals - Home</title>
+    <!-- Add CSS file -->
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
 </head>
 <body>
     <header>
-        <h1>Welcome to NUS rentals</h1>
-        <nav>
-            <button onclick="location.href='/login'">Sign In</button>
-            <button onclick="location.href='/signup'">Sign Up</button>
-        </nav>
+        <h1>NUSrentals - Housing Types</h1>
     </header>
     <main>
-        <h2>Featured Listings</h2>
         <section>
+            {% for description, image_name in images %}
             <article>
-                <h3>Listing 1</h3>
-                <img src="html_images/pgp-house-blocks.jpg" alt="Listing 1">
-                <p>Furnished Apartments</p>
+                <h3>{{ description }}</h3>
+                <img src="{{ url_for('static', filename='images/' + image_name) }}" alt="{{ description }}">
             </article>
-            <article>
-                <h3>Listing 2</h3>
-                <img src="html_images\2017-residential-college-4-6_1.png" alt="Listing 2">
-                <p>Communal liiving spaces</p>
-            </article>
-            <article>
-                <h3>Listing 3</h3>
-                <img src="html_images\2017-eusoff-hall-2_2.png" alt="Listing 3">
-                <p>Shared accomodations</p>
-            </article>
+            {% endfor %}
         </section>
     </main>
     <footer>
