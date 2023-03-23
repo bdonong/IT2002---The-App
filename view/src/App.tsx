@@ -30,6 +30,7 @@ function App() {
         <EditView relationView={currentRelationView} onRelationChange={handleRelationViewUpdate} />
         {/* TableView component is just for displaying the table on the right side of the view */}
         <TableView relationView={currentRelationView} />
+        <TableView relationView={currentRelationView} />
       </div>
     </div>
   )

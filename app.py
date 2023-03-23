@@ -5,7 +5,7 @@ import json
 # ? flask - library used to write REST API endpoints (functions in simple words) to communicate with the client (view) application's interactions
 # ? request - is the default object used in the flask endpoints to get data from the requests
 # ? Response - is the default HTTP Response object, defining the format of the returned data by this api
-from flask import Flask, request, Response, render_template, request, redirect, url_for
+from flask import Flask, request, Response, render_template, request, redirect, url_for, make_response
 # ? sqlalchemy is the main library we'll use here to interact with PostgresQL DBMS
 import sqlalchemy
 # ? Just a class to help while coding by suggesting methods etc. Can be totally removed if wanted, no change
@@ -246,6 +246,10 @@ def insert_values_into_users(table: Dict):
     statement = f"INSERT INTO users VALUES('')"
     return sqlalchemy.text(statement)
 
+@app.route("/")
+def landing_page():
+    return render_template('home.html')
+
 
 # Create a route for the login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -254,6 +258,8 @@ def login():
         # Call the sign_in function and pass user_id and password
         user_id = request.form['user_id']
         password = request.form['password']
+        resp = make_response()
+        resp.set_cookie('Login', user_id, secure=true)
         if sign_in(user_id, password):
             # Redirect to the main page if login is successful
             return redirect(url_for('main_page'))
@@ -282,12 +288,24 @@ def signup():
     else:
         return render_template('signup.html')
 
+def get_password(user_id):
+    password_query = f'SELECT password_hash FROM users WHERE user_id = {user_id}'
+    statement = sqlalchemy.text(password_query)
+    res = db.execute(statement)
+    db.commit()
+    password = res[0]
+    #return data
+
 def sign_in(user_id, password):
     """
     Takes user_id and password as input and checks if the user exists in the database.
     Return True if the user exists and the password is correct otherwise, return False.
     """
-    # Add sql code here
+    
+
+    
+                    
+    user_command = "INSERT INTO users VALUES(user_id, password)"
     pass
 
 def sign_up(user_id, password):
@@ -297,6 +315,7 @@ def sign_up(user_id, password):
     Return True if the user exists and the password is correct otherwise, return False.
     """
     # Add sql code here
+    user_command = "INSERT INTO users VALUES(user_id, password)"
     pass
 
 
