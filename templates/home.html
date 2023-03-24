@@ -10,7 +10,18 @@
 <body>
     <header>
         <h1>NUSrentals - Housing Types</h1>
+        <h1>Welcome, {{UserID}}</h1>
     </header>
+    <div style = "position:relative; left:800px; top:2px; background-color:white;">
+<form action="/logout" method="post">
+    <button name="logout" value="logout">Logout</button>
+    </div>
+</form>
+<div style = "position:relative; left:100px; top:px; background-color:white;">
+<form action="/profile" method="post">
+    <button name="profile" value="profile">Profile</button>
+    </div>
+</form>
     <main>
         <section>
             {% for description, image_name in images %}
