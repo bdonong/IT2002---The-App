@@ -3,7 +3,7 @@ import { RelationView } from './App'
 
 // ? REST API functions to communicate with your database backend
 // ? Machine IP - replace with your server's IP address; run `ifconfig` and take the first inet IP address (should be below ens32)
-const machineIP = "172.25.76.144"
+const machineIP = "172.25.77.194"
 const machinePort = "2222"
 const api = apisauce.create({
     baseURL: `http://${machineIP}:${machinePort}`,
