@@ -1,0 +1,47 @@
+<div class="property-list">
+    <h2>Properties</h2>
+    <ul>
+      <li>
+        <div class="property-details">
+          <h3>Property 1</h3>
+          <p>Address: 123 Main Street</p>
+          <p>Type: Apartment</p>
+          <p>Number of Rooms: 2</p>
+          <p>Availability: Yes</p>
+          <p>Room Rate: $100 per night</p>
+        </div>
+        <div class="book-button">
+          <button>Book</button>
+        </div>
+      </li>
+      <li>
+        <div class="property-details">
+          <h3>Property 2</h3>
+          <p>Address: 456 Oak Avenue</p>
+          <p>Type: House</p>
+          <p>Number of Rooms: 3</p>
+          <p>Availability: No</p>
+          <p>Room Rate: $150 per night</p>
+        </div>
+        <div class="book-button">
+          <button>Book</button>
+        </div>
+      </li>
+      <!-- Add more properties as needed -->
+      <div class="property-list">
+  <h2>Properties</h2>
+  <ul>
+    {% for property in properties %}
+    <li>
+      <div class="property">
+        <h3>{{ property.name }}</h3>
+        <p>{{ property.description }}</p>
+        <button class="book-button">Book</button>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+    </ul>
+  </div>

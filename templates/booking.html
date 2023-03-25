@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Property - Bookings</title>
+    <!-- Add your own CSS file to style the page -->
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+</head>
+<body>
+    <header>
+        <h1>Book Your Stay</h1>
+    </header>
+    <main>
+        <section>
+            <form action="/submit_booking" method="POST">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+
+                <input type="submit" value="Check Availability">
+            </form>
+        </section>
+        <section>
+            <h2>Available Accommodations</h2>
+            {% for accomodation in accomodations %}
+            <article>
+                <h3>{{ accomodation.name }}</h3>
+                <img src="{{ url_for('static', filename='images/' + accomodation.image_name) }}" alt="{{ accomodation.name }}">
+                <p>{{ accomodation.description }}</p>
+                <button onclick="location.href='/book/{{ accomodation.id }}'">Book Now</button>
+            </article>
+            {% endfor %}
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 University Property. All rights reserved.</p>
+    </footer>
+</body>
+</html>

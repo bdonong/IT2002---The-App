@@ -5,12 +5,13 @@ import json
 # ? flask - library used to write REST API endpoints (functions in simple words) to communicate with the client (view) application's interactions
 # ? request - is the default object used in the flask endpoints to get data from the requests
 # ? Response - is the default HTTP Response object, defining the format of the returned data by this api
-from flask import Flask, request, Response, render_template, request, redirect, url_for, make_response
+from flask import *
 # ? sqlalchemy is the main library we'll use here to interact with PostgresQL DBMS
 import sqlalchemy
 # ? Just a class to help while coding by suggesting methods etc. Can be totally removed if wanted, no change
 from typing import Dict
-
+from datetime import date
+from hashlib import sha256
 
 # ? web-based applications written in flask are simply called apps are initialized in this format from the Flask base class. You may see the contents of `__name__` by hovering on it while debugging if you're curious
 app = Flask(__name__)
@@ -21,14 +22,16 @@ CORS(app)
 # ? building our `engine` object from a custom configuration string
 # ? for this project, we'll use the default postgres user, on a database called `postgres` deployed on the same machine
 YOUR_POSTGRES_PASSWORD = "postgres"
-connection_string = f"postgresql://postgres:{YOUR_POSTGRES_PASSWORD}@localhost/postgres"
+connection_string = f"postgresql://postgres:{YOUR_POSTGRES_PASSWORD}@127.0.0.1/IT2002-App"
 engine = sqlalchemy.create_engine(
-    "postgresql://postgres:postgres@localhost/postgres"
+    "postgresql://postgres:postgres@localhost/IT2002-App", pool_pre_ping=True
 )
 
 # ? `db` - the database (connection) object will be used for executing queries on the connected database named `postgres` in our deployed Postgres DBMS
 db = engine.connect()
-
+## Secret key for sessions
+app.secret_key = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+today = date.today()
 # ? A dictionary containing
 data_types = {
     'boolean': 'BOOL',
@@ -252,25 +255,37 @@ def landing_page():
 
 @app.route("/home")
 def home():
-    return render_template('home.html')
+    if 'user_id' in session:
+        user_id = session['user_id']
+        return render_template('home.html', userID=user_id)
+    else:
+        return redirect(url_for(''))
 
 # Create a route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # Call the sign_in function and pass user_id and password
-        user_id = request.form['user_id']
+        user_id = int(request.form['user_id'])
         password = request.form['password']
-        if True==False:
+        passwordhash = sha256(password.encode('utf-8')).hexdigest()
+        if sign_in(user_id,passwordhash) == False:
             # Show an error message if login fails
             error = 'Invalid user ID or password. Please try again.'
+            print("Error")
             return render_template('login.html', error=error)
-        response = redirect(url_for("home"))
-        response.set_cookie('SessionCookie', user_id, secure=True)
-        return response
+        session['user_id'] = user_id
+        user_id = session.get('user_id')
+        return redirect(url_for("home"))
     return render_template('login.html')
 
-
+# Create a route for the signout of user
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id')
+    return render_template('landing.html')
+        
+    
 # Create a route for the sign up page
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -283,18 +298,21 @@ def signup():
         phone = request.form['phone']
         gender = request.form['gender']
         age = request.form['age']
-        if sign_up(user_id, password, name, email, phone, gender, age):
+        passwordhash = str(sha256(password.encode('utf-8')).hexdigest())
+        if sign_up(user_id):
             # Redirect to the login page after successful signup
             try:
-                insert_command = f"INSERT INTO users VALUES({user_id}, {password}, {name}, {email}, {phone}, {gender}, {age});"
+                print("Trying")
+                insert_command = f"INSERT INTO users VALUES ({user_id}, '{passwordhash}', '{name}', '{email}', '{phone}', '{gender}', {age});"
                 statement = sqlalchemy.text(insert_command)
                 db.execute(statement)
                 db.commit()
-                return Response(statement.text)
+                session['user_id'] = user_id
+                user_id = session.get('user_id')
+                return redirect(url_for("home"))
             except Exception as e:
                 db.rollback()
                 return Response(str(e),403)
-            return redirect(url_for('login'))
         else:
             # Show an error message if signup fails
             error = 'User ID already exists. Please choose a different one.'
@@ -307,41 +325,95 @@ def get_password(user_id):
     statement = sqlalchemy.text(password_query)
     res = db.execute(statement)
     db.commit()
-    password = res[0]['password_hash']
-    return password
+    res_tuple = res.fetchall()
+    if res_tuple == None:
+        return "jsjqwjasjsyj"
+    elif len(res_tuple) > 0:
+        password = res_tuple[0][0]
+        print(password)
+        return password
 
-def sign_in(user_id, password):
-    """
-    Takes user_id and password as input and checks if the user exists in the database.
-    Return True if the user exists and the password is correct otherwise, return False.
-    """
+# Takes user_id and password as input and checks if the user exists in the database.
+# Return True if the user exists and the password is correct otherwise, return False.
+def sign_in(user_id, password):  
     stored_password= get_password(user_id)
-    return password == stored_password
+    if password != stored_password:
+        return False
+    else:
+        return True
+    
 
-def sign_up(user_id, password, name, email, phone, gender, age):
-    """
-    Takes user_id and password and creates a new user
-    Add fields for name, email, phone number, gender & age
-    Returns false if the user exists, and true if there's no existing user
-    """
+# Takes user_id and password and creates a new user
+# Add fields for name, email, phone number, gender & age
+# Returns false if the user exists, and true if there's no existing user
+def sign_up(user_id):
     user_id_check = f'SELECT user_id FROM users WHERE user_id = {user_id}'
     res = db.execute(sqlalchemy.text(user_id_check))
+    res_tuple = res.fetchall()
     db.commit()
-    if(list(res) > 0): #user_id exists in the table already
+    if(len(res_tuple) > 0): #user_id exists in the table already
         return False
     return True
 
+# Checks if the user can book first, through the property_booking method
+# If available -> bookslot, which inserts the booking into the bookings table
+# Else -> throw an error saying the property is not available 
+@app.route('/book', methods = ['POST'])
+def booking_details(session_token, property_id):
+    if request.method == 'POST':
+        session_token = request.form['token']
+        property_id = request.form['property_id']
+        if(property_booking_check(session_token, property_id)): # property available
+            bookslot(session_token, property_id)
+            return redirect(url_for("confirmation"))
+        else:
+            # Show an error message if signup fails
+            error = 'Property not available for booking. Please select another property'
+            return render_template('booking.html', error=error)
+    else:
+        return render_template('booking.html')
+    
+# Creates the booking after the property is confirmed to be available
+def bookslot(session_token, property_id):
+    if session_token in session:
+        for key, value in session.iteritems():
+            if value == session_token:
+                user_id = key
+    property_booking = f'INSERT INTO BOOKING VALUES ({booking_id},{property_id},{user_id}, {start_date}, {end_date}, {today}, confirmed)'
+    res = db.execute(sqlalchemy.text(property_booking))
+    return res
 
+# Checks if the property is available 
+def property_booking_check(session_token, property_id):
+    if session_token in session:
+        for key, value in session.iteritems():
+            if value == session_token:
+                user_id = key
+    property_check = f'SELECT availibility FROM property WHERE property_id = {property_id}'
+    try:
+        res = db.execute(sqlalchemy.text(property_check))
+        res_tuple = res.fetchall()
+        db.commit()
+        availability = res_tuple[0][0]
+        if(availability == 'yes'): # just checks the availability in property for now, in the future, check the bookings table for start/end date availability as well
+            return True
+        else:
+            return False
+    except Exception as e:
+                db.rollback()
+                return Response(str(e),403)
+        
+    #return app
 # ? This method can be used by waitress-serve CLI 
 def create_app():
    return app
 
 # ? The port where the debuggable DB management API is served
-PORT = 1234
+PORT = 80
 # ? Running the flask app on the localhost/0.0.0.0, port 2222
 # ? Note that you may change the port, then update it in the view application too to make it work (don't if you don't have another application occupying it)
 if __name__ == "__main__":
-    app.run("0.0.0.0", 1234)
+    app.run("0.0.0.0", PORT)
     # ? Uncomment the below lines and comment the above lines below `if __name__ == "__main__":` in order to run on the production server
     # ? Note that you may have to install waitress running `pip install waitress`
     # ? If you are willing to use waitress-serve command, please add `/home/sadm/.local/bin` to your ~/.bashrc
