@@ -1,7 +1,7 @@
 /*Populate property table */
 
-INSERT INTO property(user_id,password_hash,user_name,email,phone_number,gender,age) VALUES (1,'8','Dael Boulde','20312 Steensland Way','2','false',4311.2);
-INSERT INTO property(user_id,password_hash,user_name,email,phone_number,gender,age) VALUES (2,'4','Priscilla Laurenty','87 Atwood Way','5','true',1476.55);
-INSERT INTO property(user_id,password_hash,user_name,email,phone_number,gender,age) VALUES (3,'2','Frederico Tierney','4 Pond Alley','1','true',2218.31);
-INSERT INTO property(user_id,password_hash,user_name,email,phone_number,gender,age) VALUES (4,'7','Dre Andrzejewski','768 Johnson Center','2','false',4885.03);
-INSERT INTO property(user_id,password_hash,user_name,email,phone_number,gender,age) VALUES (5,'3','Bryn Kleszinski','442 Hanson Point','1','true',1664.89);
+INSERT INTO property(property_id,owner_id,address,property_type,num_rooms,availability,room_rate) VALUES (1,1, '20312 Kent Vale','5 room',5,'yes',4311.2);
+INSERT INTO property(property_id,owner_id,address,property_type,num_rooms,availability,room_rate) VALUES (2,1, '87 Atwood Way','3 room',3,'yes',1476.55);
+INSERT INTO property(property_id,owner_id,address,property_type,num_rooms,availability,room_rate) VALUES (3,2, '4 Sunset Way','1 room',1,'no',2218.31);
+INSERT INTO property(property_id,owner_id,address,property_type,num_rooms,availability,room_rate) VALUES (4,2, '768 Kent Ridge','4 room',4,'no',4885.03);
+INSERT INTO property(property_id,owner_id,address,property_type,num_rooms,availability,room_rate) VALUES (5,3, 'BLK 442 Clementi Road','2 room',2,'yes',1664.89);

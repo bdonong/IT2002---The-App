@@ -1,0 +1,17 @@
+/* populate reviews table */
+
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (1, 10, 5, 4.5, 'nisi eu orci mauris lacinia sapien quis libero nullam sit amet turpis elementum ligula vehicula consequat morbi a');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (2, 4, 4, 1.3, 'proin eu mi nulla ac enim in tempor turpis nec');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (3, 2, 4, 7.8, 'dui maecenas tristique est et tempus semper est quam pharetra magna');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (4, 4, 4, 3.7, 'quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (5, 12, 4, 1.8, 'elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (6, 2, 2, 7.5, 'dapibus duis at velit eu est congue elementum in hac habitasse platea dictumst');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (7, 9, 4, 6.8, 'diam in magna bibendum imperdiet nullam orci pede venenatis non sodales sed tincidunt eu felis fusce posuere felis sed');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (8, 5, 5, 1.5, 'rutrum rutrum neque aenean auctor gravida sem praesent id massa id nisl venenatis lacinia aenean sit amet justo morbi ut odio cras mi pede malesuada in imperdiet et commodo vulputate');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (9, 1, 5, 7.2, 'nec condimentum neque sapien placerat ante nulla justo aliquam quis turpis eget elit sodales scelerisque mauris sit amet eros');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (10, 1, 3, 9.5, 'scelerisque mauris sit amet eros suspendisse accumsan tortor quis turpis sed ante vivamus tortor duis mattis egestas metus');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (11, 8, 5, 3.5, 'tristique in tempus sit amet sem fusce consequat nulla nisl nunc nisl duis bibendum felis sed interdum venenatis turpis');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (12, 9, 3, 9.4, 'semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (13, 8, 2, 2.0, 'neque sapien placerat ante nulla justo aliquam quis turpis eget elit sodales scelerisque mauris sit amet eros suspendisse accumsan tortor quis');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (14, 10, 5, 5.6, 'dolor sit amet consectetuer adipiscing elit proin risus praesent lectus vestibulum quam sapien varius ut blandit non interdum in ante vestibulum ante ipsum primis in faucibus orci luctus et');
+INSERT INTO review (review_id, reviewer_id, property_id, rating, review) values (15, 1, 5, 3.1, 'sed vestibulum sit amet cursus id turpis integer aliquet massa id lobortis convallis tortor risus dapibus augue vel accumsan');
