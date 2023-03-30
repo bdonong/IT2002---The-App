@@ -8,6 +8,21 @@
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
 </head>
 <body>
+    <script>
+        function bookApartment() {
+            const response = await fetch("137.132.216.139:1234/book"), {
+                method: 'POST',
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: '{
+                    "token"
+                }'
+                }
+            } 
+        }
+    </script>
     <header>
         <h1>NUSrentals - Housing Types</h1>
         <h1>Welcome, {{userID}}</h1>
@@ -40,7 +55,8 @@
                 <h3>Listing 1</h3>
                 <img src="html_images/pgp-house-blocks.jpg" alt="Listing 1">
                 <p>Furnished Apartments</p> 
-                <button button onclick="location.href='/book'"> Book </button>
+                <button onclick="bookApartment()">Book</button>"
+
             </article>
 
             <article>

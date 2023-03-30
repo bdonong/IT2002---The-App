@@ -42,7 +42,6 @@ data_types = {
 
 # ? @app.get is called a decorator, from the Flask class, converting a simple python function to a REST API endpoint (function)
 
-
 @app.get("/table")
 def get_relation():
     # ? This method returns the contents of a table whose name (table-name) is given in the url `http://localhost:port/table?name=table-name`
@@ -249,10 +248,33 @@ def insert_values_into_users(table: Dict):
     statement = f"INSERT INTO users VALUES('')"
     return sqlalchemy.text(statement)
 
+## Create the users table
+def create_users_table():
+    create_users_statement = """
+        CREATE TABLE IF NOT EXISTS users (
+        user_id INTEGER PRIMARY KEY,
+        password_hash VARCHAR(255) NOT NULL,
+        user_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone_number VARCHAR(20) UNIQUE NOT NULL,
+        gender VARCHAR(6) CHECK(gender = 'male' or gender = 'female'),
+        age INTEGER NOT NULL
+        );
+        """
+    try:
+        statement = sqlalchemy.text(create_users_statement)
+        db.execute(statement)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    
+# Landing/first page of the website
 @app.route("/")
 def landing_page():
     return render_template('landing.html')
 
+# Home page of the website
 @app.route("/home")
 def home():
     if 'user_id' in session:
@@ -320,6 +342,7 @@ def signup():
     else:
         return render_template('signup.html')
 
+# Gets the password of the user, from the user_id
 def get_password(user_id):
     password_query = f'SELECT password_hash FROM users WHERE user_id = {user_id};'
     statement = sqlalchemy.text(password_query)
@@ -361,10 +384,10 @@ def sign_up(user_id):
 @app.route('/book', methods = ['POST'])
 def booking_details(session_token, property_id):
     if request.method == 'POST':
-        session_token = request.form['token']
+        cookies = request.headers['cookie']
         property_id = request.form['property_id']
-        if(property_booking_check(session_token, property_id)): # property available
-            bookslot(session_token, property_id)
+        if (property_booking_check(cookies, property_id)) == True: # property available
+            bookslot(cookies, property_id)
             return redirect(url_for("confirmation"))
         else:
             # Show an error message if signup fails
@@ -373,7 +396,7 @@ def booking_details(session_token, property_id):
     else:
         return render_template('booking.html')
     
-# Creates the booking after the property is confirmed to be available
+# Creates the booking after the property is confirmed to be available, using the website cookie
 def bookslot(session_token, property_id):
     if session_token in session:
         for key, value in session.iteritems():
@@ -383,7 +406,7 @@ def bookslot(session_token, property_id):
     res = db.execute(sqlalchemy.text(property_booking))
     return res
 
-# Checks if the property is available 
+# Checks if the property is available, by checking if the availability in the database == 'yes'
 def property_booking_check(session_token, property_id):
     if session_token in session:
         for key, value in session.iteritems():
