@@ -396,6 +396,17 @@ def booking_details(session_token, property_id):
     else:
         return render_template('booking.html')
     
+@app.route('/admin', methods = ['POST'])
+def admin_page():
+    if request.method == 'POST':
+        query = request.form['']
+    
+    if 'user_id' in session:
+        user_id = session['user_id']
+        return render_template('admin.html', userID=user_id)
+    
+
+
 # Creates the booking after the property is confirmed to be available, using the website cookie
 def bookslot(session_token, property_id):
     if session_token in session:
