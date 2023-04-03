@@ -16,6 +16,7 @@ DROP TABLE users;
 CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER PRIMARY KEY,
   password_hash VARCHAR(255) NOT NULL,
+  session_cookies VARCHAR(256)
   user_name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   phone_number VARCHAR(20) UNIQUE NOT NULL,
@@ -63,6 +64,7 @@ CREATE TABLE IF NOT EXISTS transaction (
 CREATE TABLE IF NOT EXISTS administrator (
   user_id INTEGER,
   password_hash VARCHAR(256),
+  session_cookies VARCHAR(256)
   permissions TEXT,
   PRIMARY KEY(user_id),
   FOREIGN KEY(user_id) REFERENCES users (user_id)
