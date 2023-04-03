@@ -396,12 +396,15 @@ def booking_details(session_token, property_id):
     else:
         return render_template('booking.html')
     
+    
+# Routing to the home admin page
 @app.route('/admin')
 def admin_page():
     if 'user_id' in session:
         user_id = session['user_id']
         return render_template('admin.html', userID=user_id)
     
+# Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
 def admin_query():
     request_dict = {
@@ -427,6 +430,7 @@ def admin_query():
     else:
         return render_template('admin.html', data_query_res = 'No query')
     
+# Update the admin page to include the data list query
 @app.route("/admin/data_list_query", methods = ['POST'])
 def admin_list_query():
     request_dict = {
@@ -538,6 +542,74 @@ def admin_list_query():
         headers_tuple = row_names_dict[query]
         db.commit()
         return render_template('admin.html', executed_list_query = query_name_dict[query], list_query_res = res_tuple, query_headers = headers_tuple)
+
+
+@app.route("/admin/join_tables", methods = ['POST'])
+def admin_join_tables():
+    pri_key_dict = {
+        "users" : "user_id",
+        "property" : "property_id",
+        "review" : "review_id",
+        "booking" : "booking_id",
+        "transaction" : "transaction_id"
+    }
+    
+    if request.method == 'POST':
+        
+        db1 = request.form['db1']
+        db2 = request.form['db2']
+        num_display = request.form['num_display']
+        query = ''
+        if db1 == 'users':
+            """
+            users & property -> user_id, owner_id
+            users & review -> user_id, reviewer_id
+            users & booking -> user_id, student_id
+            Rest natural join
+            """
+            db2_key = ''
+            if db2 == 'review':
+                db2_key =  'reviewer_id'
+            elif db2 == 'property':
+                db2_key = 'owner_id'
+            elif db2 == 'booking':
+                db2_key = 'student_id'
+            else:
+                db2_key = 'user_id'
+            query = f"""SELECT * 
+                        FROM users, {db2}
+                        WHERE user_id = {db2_key}
+                        LIMIT {num_display}
+                        """
+        else:
+            query = f"""SELECT *
+                        FROM {db1}
+                        NATURAL JOIN {db2}
+                        LIMIT {num_display}"""
+                        
+        temp_table = f"CREATE TEMP TABLE temp_join AS ({query});"
+        header_names = f"""
+                    SELECT column_name
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE table_name = 'temp_join'
+                    ORDER BY ordinal_position;
+                    """
+        drop_table = "DROP TABLE temp_join"
+        try:
+            res = db.execute(sqlalchemy.text(query + ";"))
+            res_tuple = res.fetchall()
+            # temp_table_creation & deletion
+            db.execute(sqlalchemy.text(temp_table))
+            headers = db.execute(sqlalchemy.text(header_names))
+            db.execute(sqlalchemy.text(drop_table))
+            
+            header_tuple = headers.fetchall()
+            header_tuple = tuple(map(lambda x: x[0], header_tuple))
+            db.commit()
+            return render_template('admin.html', header_names = header_tuple, join_query = res_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e),403)
 
 # Creates the booking after the property is confirmed to be available, using the website cookie
 def bookslot(session_token, property_id):
