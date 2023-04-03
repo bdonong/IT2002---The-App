@@ -396,16 +396,148 @@ def booking_details(session_token, property_id):
     else:
         return render_template('booking.html')
     
-@app.route('/admin', methods = ['POST'])
+@app.route('/admin')
 def admin_page():
-    if request.method == 'POST':
-        query = request.form['']
-    
     if 'user_id' in session:
         user_id = session['user_id']
         return render_template('admin.html', userID=user_id)
     
-
+@app.route("/admin/data_query", methods = ['POST'])
+def admin_query():
+    request_dict = {
+        "num_users" : "SELECT COUNT(user_id) FROM users;",
+        "num_properties" : "SELECT COUNT(property_id) FROM property;",
+        "transaction_avg" : "SELECT TRUNC(AVG(t.amount), 2) FROM transaction t;",
+        "transaction_stddev" : "SELECT TRUNC(STDDEV_SAMP(t.amount), 2) FROM transaction t;"
+    }
+    
+    query_name_dict = {
+                    "num_users" : "Number of Users",
+                    "num_properties" : "Number of Properties",
+                    "transaction_avg" : "Transaction Average",
+                    "transaction_stddev" : "Transaction Standard Deviation"
+    }
+    
+    if request.method == 'POST':
+        query = request.form['query']
+        res = db.execute(sqlalchemy.text(request_dict[query]))
+        res_tuple = res.fetchall()
+        db.commit()
+        return render_template('admin.html', executed_query = query_name_dict[query], data_query_res = res_tuple[0][0])
+    else:
+        return render_template('admin.html', data_query_res = 'No query')
+    
+@app.route("/admin/data_list_query", methods = ['POST'])
+def admin_list_query():
+    request_dict = {
+        "GST_room_rate" : """
+                                SELECT p1.address, p1.room_rate * 1.08 AS adjusted_price
+                                FROM property p1
+                                WHERE p1.room_rate >= 1500
+                                UNION
+                                SELECT p2.address, p2.room_rate
+                                FROM property p2
+                                WHERE p2.room_rate < 1500;
+                                """,
+        "highest_spending_users" : """
+                                SELECT u.user_id, u.user_name, SUM(t.amount) as total_spending
+                                FROM users u, booking b, transaction t
+                                WHERE u.user_id = b.student_id
+                                AND b.booking_id = t.booking_id
+                                AND t.status = 'paid'
+                                GROUP BY u.user_id, u.user_name
+                                HAVING SUM(t.amount) = (
+                                SELECT MAX(total_spending)
+                                FROM (
+                                    SELECT u1.user_id, SUM(t1.amount) as total_spending
+                                    FROM users u1, booking b1, transaction t1
+                                    WHERE u1.user_id = b1.student_id
+                                    AND b1.booking_id = t1.booking_id
+                                    AND t1.status = 'paid'
+                                    GROUP BY u1.user_id
+                                ) as max_spending
+                                );
+                                """,
+        "highest_value_transactions": """
+                                SELECT u.user_name, MAX(t.amount) AS max_spend
+                                FROM users u, booking b, transaction t
+                                WHERE u.user_id = b.student_id
+                                AND b.booking_id = t.booking_id
+                                GROUP BY (u.user_name)
+                                ORDER BY max_spend DESC
+                                LIMIT 5;""",
+        "highest_rated_properties": """
+                                SELECT u.user_name, p.address, TRUNC(AVG(r.rating), 2)
+                                FROM users u, property p, review r
+                                WHERE u.user_id = p.owner_id
+                                AND p.property_id = r.property_id
+                                GROUP BY u.user_name, p.address
+                                ORDER BY AVG(r.rating) DESC
+                                LIMIT 5;
+                                """,
+        "users_no_transactions" : """
+                                SELECT u.user_id, u.user_name
+                                FROM users u
+                                WHERE NOT EXISTS (
+                                SELECT *
+                                FROM booking b, transaction t
+                                WHERE b.booking_id = t.booking_id
+                                AND u.user_id = b.student_id 
+                                AND t.status = 'paid'
+                                );""",
+        "unpaid_users"        : """
+                                SELECT u1.user_id, u1.user_name, t1.amount 
+                                FROM users u1, booking b1, transaction t1
+                                WHERE u1.user_id = b1.student_id
+                                AND b1.booking_id = t1.booking_id
+                                AND b1.status = 'processing'
+                                EXCEPT
+                                SELECT u2.user_id, u2.user_name, t2.amount 
+                                FROM users u2, booking b2, transaction t2
+                                WHERE u2.user_id = b2.student_id
+                                AND b2.booking_id = t2.booking_id
+                                AND t2.status = 'paid';
+                                """,
+        "most_bookings_users" : """
+                                SELECT u.user_id, u.user_name, COUNT(b.booking_id) as num_bookings
+                                FROM users u, booking b 
+                                WHERE u.user_id = b.student_id
+                                GROUP BY u.user_id, u.user_name
+                                HAVING COUNT(*) >= ALL(
+                                SELECT COUNT(*)
+                                FROM users u1, booking b1
+                                WHERE u1.user_id = b1.student_id
+                                GROUP BY u1.user_id
+                                );"""
+    }
+    
+    row_names_dict = {
+        "GST_room_rate" : ("Address", "Adjusted Price"),
+        "highest_spending_users" : ("User ID", "Username", "Total Spending"),
+        "highest_value_transactions" : ("Username", "Max Spend"),
+        "highest_rated_properties" : ("Owner's Name", "Address", "Avg Rating"),
+        "users_no_transactions" : ("User ID", "Username"),
+        "unpaid_users" : ("User ID", "Username", "Transaction amount"),
+        "most_bookings_users" : ("User ID", "Username", "Booking amounts")
+    }
+    
+    query_name_dict = {
+        "GST_room_rate" : "GST applied if rate is higher than $1500",
+        "highest_spending_users" : "Highest Spending Users",
+        "highest_value_transactions" : "Top 5 Highest Value Transactions",
+        "highest_rated_properties" : "Top 5 Highest Rated Properties",
+        "users_no_transactions" : "Users who have not completed any transactions",
+        "unpaid_users" : "Users who booked but not paid",
+        "most_bookings_users" : "Users with the most bookings"
+    }
+    
+    if request.method == 'POST':
+        query = request.form['query']
+        res = db.execute(sqlalchemy.text(request_dict[query]))
+        res_tuple = res.fetchall()
+        headers_tuple = row_names_dict[query]
+        db.commit()
+        return render_template('admin.html', executed_list_query = query_name_dict[query], list_query_res = res_tuple, query_headers = headers_tuple)
 
 # Creates the booking after the property is confirmed to be available, using the website cookie
 def bookslot(session_token, property_id):

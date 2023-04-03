@@ -9,12 +9,11 @@
 </head>
 
 <header>
-    <h1>NUSrentals - Administration Page</h1>
+    <h1>NUSrentals - Administration</h1>
 </header>
 
 <body>
     <main>
-        <h2>Dashboard</h2>
         <section>
             <h2>View Tables</h2>
             <ul>
@@ -26,38 +25,54 @@
             </ul>
         </section>
         <form action="/admin/data_query" method="POST" >
-            <h4><label for = "queries">Data Query</label></h4>
+            <h2><label for = "queries">Data Query</label></h2>
                 <select id = "query" name = "query" required>
+                    <option value = "num_users" selected>Number of Users</option>
+                    <option value = "num_properties">Number of Properties</option>
                     <option value = "transaction_avg">Transaction Average</option>
                     <option value = "transaction_stddev">Transaction Standard Deviation</option>
-                    <option value = "num_users">Number of Users</option>
-                    <option value = "num_properties">Number of Properties</option>
                 </select>
             <br><br>
             <input type="submit" value="Get Data">
-        </form><br>  
+        </form>  
+        <h3>Query: {{ executed_query }}</h3>
+        <h3>Results: {{  data_query_res  }}</h3>
         <hr>
 
         <form action="/admin/data_list_query" method="POST" >
-            <h4><label for = "queries">Data List Query</label></h4>
+            <h2><label for = "queries">Data List Query</label></h2>
                 <select id = "query" name = "query" required>
-                    <option value = "highest_spending_users">Highest Spending Users</option>
-                    <option value = "users_no_transactions">Users who have not completed any transactions"</option>
-                    <option value = "most_bookings_users">Users with the most bookings</option>
-                    <option value = "unpaid_users">Users who booked but not paid</option>
-                    <option value = "highest_value_transactions">Top 5 Highest value transactions</option>
-                    <option value = "highest_rated_properties">Top 5 Highest rated properties</option>
                     <option value = "GST_room_rate">GST applied if rate is higher than $1500</option>
+                    <option value = "highest_spending_users" selected>Highest Spending Users</option>
+                    <option value = "highest_value_transactions">Top 5 Highest Value Transactions</option>
+                    <option value = "highest_rated_properties">Top 5 Highest Rated Properties</option>
+                    <option value = "users_no_transactions">Users who have not completed any transactions</option>
+                    <option value = "unpaid_users">Users who booked but not paid</option>
+                    <option value = "most_bookings_users">Users with the most bookings</option>
             <br><br>
             <input type="submit" value="Get List">
-        </form><br>  
+        </form>
+        <h3>Query: {{ executed_list_query }}</h3>
+        <h3>Results table:</h3>
+        {% for header in query_headers %}
+        <tr>{{ header }}</tr>
+        {% endfor %}<br>
+
+        {% for row in list_query_res %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td></tr>
+            {% endfor %}
+        </tr><br>
+        {% endfor %}
         <hr>
 
+        <!--To join two tables together-->
         <form action="/admin/join_tables" method="POST" >
-            <label for = "databases"><h4>Database Selection</h4></label>
+            <label for = "databases"><h2>Database Selection</h2></label>
 
             <select id = "db1" name = "db1" required>
-                <option value = "Booking">Booking</option>
+                <option value = "Booking" selected>Booking</option>
                 <option value = "Property">Property</option>
                 <option value = "Review">Review</option>
                 <option value = "Transaction">Transaction</option>
@@ -66,7 +81,7 @@
 
             <select id = "db2" name = "db2" required>
                 <option value = "Booking">Booking</option>
-                <option value = "Property">Property</option>
+                <option value = "Property" selected>Property</option>
                 <option value = "Review">Review</option>
                 <option value = "Transaction">Transaction</option>
                 <option value = "User">User</option>
@@ -77,7 +92,7 @@
             <input type="submit" value="Get Table">
             
         </form>
-    </main>
+    </main> <br><br>
 
     <footer>
         <p>&copy; 2023 NUSrentals. All rights reserved.</p>
