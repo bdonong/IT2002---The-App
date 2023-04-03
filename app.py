@@ -294,6 +294,8 @@ def login():
         # Call the sign_in function and pass user_id and password
         user_id = int(request.form['user_id'])
         password = request.form['password']
+        # admin_login = request.form['admin_login']
+        
         passwordhash = sha256(password.encode('utf-8')).hexdigest()
         if sign_in(user_id,passwordhash) == False:
             # Show an error message if login fails
@@ -308,7 +310,17 @@ def login():
         ## Set cookies
         resp = redirect(url_for("home"))
         resp.set_cookie('session_cookies', hashedcookies)
-        return resp
+        # if admin_login == 'off':
+        #     resp = redirect(url_for("home"))
+        #     resp.set_cookie('session_cookies', hashedcookies)
+        # elif(admin_sign_in):
+        #     # check if the user is in the administrator table
+        #     resp = redirect(url_for("admin"))
+        #     resp.set_cookie('session_cookies', hashedcookies)
+        # else:
+        #     return render_template('login.html')
+        # return resp
+            
     return render_template('login.html')
 
 
@@ -368,6 +380,17 @@ def update_cookies(user_id, cookies):
     res = db.execute(statement)
     db.commit()
     return True
+
+def admin_sign_in(user_id):
+    admin_check = f'SELECT user_id FROM administrators WHERE user_id = {user_id};'
+    statement = sqlalchemy.text(admin_check)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    if res_tuple == None:
+        return False
+    elif len(res_tuple) > 0:
+        return True
 
 # Gets the password of the user, from the user_id
 def get_password(user_id):
@@ -684,7 +707,6 @@ def property_booking_check(session_token, property_id):
 # ? This method can be used by waitress-serve CLI 
 def create_app():
    return app
-
 # ? The port where the debuggable DB management API is served
 PORT = 80
 # ? Running the flask app on the localhost/0.0.0.0, port 2222
