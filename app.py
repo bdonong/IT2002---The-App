@@ -310,15 +310,6 @@ def login():
         ## Set cookies
         resp = redirect(url_for("home"))
         resp.set_cookie('session_cookies', hashedcookies)
-        # if admin_login == 'off':
-        #     resp = redirect(url_for("home"))
-        #     resp.set_cookie('session_cookies', hashedcookies)
-        # elif(admin_sign_in):
-        #     # check if the user is in the administrator table
-        #     resp = redirect(url_for("admin"))
-        #     resp.set_cookie('session_cookies', hashedcookies)
-        # else:
-        #     return render_template('login.html')
         return resp
             
     return render_template('login.html')
@@ -380,17 +371,6 @@ def update_cookies(user_id, cookies):
     res = db.execute(statement)
     db.commit()
     return True
-
-def admin_sign_in(user_id):
-    admin_check = f'SELECT user_id FROM administrators WHERE user_id = {user_id};'
-    statement = sqlalchemy.text(admin_check)
-    res = db.execute(statement)
-    db.commit()
-    res_tuple = res.fetchall()
-    if res_tuple == None:
-        return False
-    elif len(res_tuple) > 0:
-        return True
 
 # Gets the password of the user, from the user_id
 def get_password(user_id):
@@ -460,12 +440,53 @@ def booking_details(session_token, property_id):
     
     
 # Routing to the home admin page
-@app.route('/admin')
+@app.route('/admin/home')
 def admin_page():
-    if 'user_id' in session:
-        user_id = session['user_id']
-        return render_template('admin.html', userID=user_id)
+    return render_template('admin.html')
     
+@app.route('/admin', methods = ['GET','POST'])
+def admin_signin_page():
+    if request.method == 'POST':
+        # Call the sign_in function and pass user_id and password
+        user_id = int(request.form['user_id'])
+        password = request.form['password']
+        if admin_sign_in(user_id,password) == False:
+            # Show an error message if login fails
+            error = 'Invalid user ID or password. Please try again.'
+            print("Error")
+            return render_template('admin_signin.html', error=error)
+        print("redirecting....")
+        return redirect('/admin/home')
+    return render_template('admin_signin.html')  
+    
+def admin_sign_in(user_id,password_hash):
+    admin_check = f'SELECT user_id, password_hash FROM administrator WHERE user_id = {user_id};'
+    statement = sqlalchemy.text(admin_check)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    print(password_hash)
+    print(res_tuple[0][1])
+    if len(res_tuple) > 0 and res_tuple[0][1] == password_hash:
+        return True
+    else:
+        return False
+
+# Update the admin tables for extra permissions
+@app.route('/admin/update_admin', methods = ['GET','POST'])
+def admin_update():
+    current_admins_query = "SELECT user_id, permissions FROM administrator;"
+    current_admins = db.execute(sqlalchemy.text(current_admins_query))
+    admins_tuple = current_admins.fetchall()
+    db.commit()
+    return render_template('admin_update.html', admins_tuple = admins_tuple)
+
+# Allows admins to update or delete table entries 
+@app.route('/admin/update_tables', methods = ['GET','POST'])
+def admin_update_tables():
+    pass
+    
+
 # Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
 def admin_query():

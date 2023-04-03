@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Manage Admins</title>
+</head>
+<body>
+	<h1>Manage Admins</h1>
+	<table>
+		<caption>Current Admins</caption>
+		<th>user_id</th>
+		<th>permissions</th>
+		{% for row in admins_tuple %}
+		<tr>
+			{% for cell in row %}
+			<td>{{ cell }}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
+	<hr>
+
+	<h3>Update an admin</h3>
+	<!-- Dropdown to select the user -->
+	<form action="/admin/update_admin" method="POST">
+		<label for="user_id">Enter user ID :</label>
+		<input type="number" id="user_id" name="user_id"><br>
+		<label for="permissions">Enter new permissions :</label>
+		<input type="text" id="permissions" name="permissions"><br><br>
+		<button type="submit">Update</button>
+	</form>
+
+	<h3>Add an admin</h3>
+	<h4>Note: admin has to be a registered user</h4>
+	<!-- Dropdown to select the user -->
+	<form action="/admin/add_admin" method="POST">
+		<label for="user_id">Enter user ID :</label>
+		<input type="number" id="user_id" name="user_id"><br>
+		<label for="password">Enter password :</label>
+		<input type="text" id="password" name="password"><br>
+		<label for="permissions">Enter permissions :</label>
+		<input type="text" id="permissions" name="permissions"><br><br>
+		<button type="submit">Add Admin</button>
+	</form>
+
+	<h3>Remove an admin</h3>
+	<!-- Dropdown to select the user -->
+	<form action="/admin/remove_admin" method="POST">
+		<label for="user_id">Enter user ID :</label>
+		<input type="number" id="user_id" name="user_id"><br>
+		<button type="submit">Remove</button>
+	</form>
+</body>
+</html>
