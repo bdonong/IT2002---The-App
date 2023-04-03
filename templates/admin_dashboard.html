@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Property - Admin Dashboard</title>
+    <!-- Add your own CSS file to style the page -->
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>View Tables</h2>
+            <ul>
+                <li><a href="/admin/users">Users</a></li>
+                <li><a href="/admin/properties">Properties</a></li>
+                <li><a href="/admin/reviews">Reviews</a></li>
+                <li><a href="/admin/bookings">Bookings</a></li>
+                <li><a href="/admin/transactions">Transactions</a></li>
+            </ul>
+        </section>
+        <section>
+            <h2>Overview</h2>
+            <p>Number of Users: {{ overview.num_users }}</p>
+            <p>Number of Properties: {{ overview.num_properties }}</p>
+            <h3>Highest Spending Users</h3>
+            <ul>
+                {% for user in overview.highest_spending_users %}
+                <li>{{ user.name }} - {{ user.amount_spent }}</li>
+                {% endfor %}
+            </ul>
+            <h3>Customers with Most Bookings</h3>
+            <ul>
+                {% for user in overview.most_bookings_users %}
+                <li>{{ user.name }} - {{ user.num_bookings }}</li>
+                {% endfor %}
+            </ul>
+            <h3>Users with Unpaid Bookings</h3>
+            <ul>
+                {% for user in overview.unpaid_users %}
+                <li>{{ user.name }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section>
+            <h2>Join Tables</h2>
+            <form action="/admin/join_tables" method="POST">
+                <label for="table1">Select first table:</label>
+                <select id="table1" name="table1">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+                <label for="table1_column">Select first table join column:</label>
+                <input type="text" id="table1_column" name="table1_column">
+
+                <label for="table2">Select second table:</label>
+                <select id="table2" name="table2">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+                <label for="table2_column">Select second table join column:</label>
+                <input type="text" id="table2_column" name="table2_column">
+
+                <input type="submit" value="Join Tables">
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 University Property. All rights reserved.</p>
+    </footer>
+</body>
+</html>
