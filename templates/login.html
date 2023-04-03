@@ -10,10 +10,13 @@
     <h2>Login</h2>
     <form action="/login" method="post">
         <label for="user_id">User ID:</label>
-        <input type="number" id="user_id" name="user_id" required><br><br>
+        <input type="number" id="user_id" name="user_id" required><br>
         
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="admin_login">Admin Login</label>
+        <input type="checkbox" name="admin_login" value="admin_login"><br><br>
         
         <input type="submit" value="Sign In">
     </form>
