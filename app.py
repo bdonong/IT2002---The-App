@@ -319,7 +319,7 @@ def login():
         #     resp.set_cookie('session_cookies', hashedcookies)
         # else:
         #     return render_template('login.html')
-        # return resp
+        return resp
             
     return render_template('login.html')
 
