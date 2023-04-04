@@ -498,45 +498,85 @@ def admin_update():
 
 @app.route('/admin/add_admin', methods = ['POST'])
 def add_admin():
-        user_id = int(request.form['user_id'])
-        password = request.form['password']
-        permissions = request.form['permissions']
-        if admin_check(user_id):
-            insert_statement = f"""INSERT INTO administrator values (
-                                {user_id}, '{password}', '{permissions}'
-                                )
-                                """
-            try:
-                db.execute(sqlalchemy.text(insert_statement))
-                db.commit()
-                return redirect('/admin/update_admin')
-            except Exception as e:
-                db.rollback()
-                return Response(str(e), 403)
+    user_id = int(request.form['user_id'])
+    password = request.form['password']
+    permissions = request.form['permissions']
+    if admin_check(user_id):
+        print('checked!')
+        insert_statement = f"""INSERT INTO administrator values (
+                            {user_id}, '{password}', '{permissions}'
+                            )
+                            """
+        try:
+            db.execute(sqlalchemy.text(insert_statement))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return redirect('/admin/update_admin')
 
 def admin_check(user_id):
-        user_id_check = f"""SELECT user_id 
-                            FROM users 
-                            WHERE user_id = {user_id}"""
-        admin_exists_check = f"""SELECT user_id
-                                 FROM administrator
-                                 WHERE user_id = {user_id}"""
-        user_exists = db.execute(sqlalchemy.text(user_id_check))
-        admin_exists = db.execute(sqlalchemy.text(admin_exists_check))
-        users_tuple = user_exists.fetchall()
-        admin_tuple = admin_exists.fetchall()
+    user_id_check = f"""SELECT user_id 
+                        FROM users 
+                        WHERE user_id = {user_id}"""
+    admin_exists_check = f"""SELECT user_id
+                                FROM administrator
+                                WHERE user_id = {user_id}"""
+    user_exists = db.execute(sqlalchemy.text(user_id_check))
+    admin_exists = db.execute(sqlalchemy.text(admin_exists_check))
+    users_tuple = user_exists.fetchall()
+    admin_tuple = admin_exists.fetchall()
+    db.commit()
+    if(len(users_tuple) > 0 and len(admin_tuple) == 0): #user_id exists in the table already
+        return True
+    return False
+
+@app.route('/admin/remove_admin', methods = ['POST'])
+def remove_admin():
+    user_id = request.form['user_id']
+    remove_admin_statement = f'DELETE FROM administrator WHERE user_id = {user_id}'
+    try:
+        db.execute(sqlalchemy.text(remove_admin_statement))
         db.commit()
-        if(len(users_tuple) > 0 and len(admin_tuple) < 0): #user_id exists in the table already
-            return True
-        return False
-        
+        return redirect('/admin/update_admin')
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
         
 # Allows admins to update or delete table entries 
 @app.route('/admin/update_tables', methods = ['GET','POST'])
 def admin_update_tables():
-    pass
+    if request.method == 'POST':
+        table = request.form['table']
+        num_display = request.form['num_display']
+        query = f'SELECT * FROM {table} LIMIT {num_display};'
+        header_names = f"""
+            SELECT column_name
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = '{table}'
+            ORDER BY ordinal_position;
+            """
+        try:
+            res = db.execute(sqlalchemy.text(query))
+            headers = db.execute(sqlalchemy.text(header_names))
+            res_tuple = res.fetchall()
+            header_tuple = headers.fetchall()
+            header_tuple = tuple(map(lambda x: x[0], header_tuple))
+            db.commit()
+            return render_template('admin_tables.html', table = table, header_names = header_tuple, query = res_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return render_template('admin_tables.html')
     
-
+@app.route('/admin/alter_table', method = ['POST'])
+def admin_alter_table():
+    table_to_alter = request.form['table_to_alter']
+    operation = request.form['operation']
+    column_name = request.form['column_name']
+    amendment = request.form.get('amendment', '')
+    
 # Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
 def admin_query():
@@ -688,7 +728,6 @@ def admin_join_tables():
     }
     
     if request.method == 'POST':
-        
         db1 = request.form['db1']
         db2 = request.form['db2']
         num_display = request.form['num_display']
