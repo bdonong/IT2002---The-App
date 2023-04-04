@@ -475,18 +475,168 @@ def admin_sign_in(user_id,password_hash):
 # Update the admin tables for extra permissions
 @app.route('/admin/update_admin', methods = ['GET','POST'])
 def admin_update():
+    if request.method == 'POST':
+        user_id = int(request.form['user_id'])
+        new_permissions = request.form['permissions']
+        update_query = f"""UPDATE administrator 
+                           SET permissions = '{new_permissions}'
+                           WHERE user_id = {user_id};"""
+        try:
+            db.execute(sqlalchemy.text(update_query))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+        
     current_admins_query = "SELECT user_id, permissions FROM administrator;"
     current_admins = db.execute(sqlalchemy.text(current_admins_query))
     admins_tuple = current_admins.fetchall()
     db.commit()
     return render_template('admin_update.html', admins_tuple = admins_tuple)
 
+
+@app.route('/admin/add_admin', methods = ['POST'])
+def add_admin():
+    user_id = int(request.form['user_id'])
+    password = request.form['password']
+    permissions = request.form['permissions']
+    if admin_check(user_id):
+        print('checked!')
+        insert_statement = f"""INSERT INTO administrator values (
+                            {user_id}, '{password}', '{permissions}'
+                            )
+                            """
+        try:
+            db.execute(sqlalchemy.text(insert_statement))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return redirect('/admin/update_admin')
+
+def admin_check(user_id):
+    user_id_check = f"""SELECT user_id 
+                        FROM users 
+                        WHERE user_id = {user_id}"""
+    admin_exists_check = f"""SELECT user_id
+                                FROM administrator
+                                WHERE user_id = {user_id}"""
+    user_exists = db.execute(sqlalchemy.text(user_id_check))
+    admin_exists = db.execute(sqlalchemy.text(admin_exists_check))
+    users_tuple = user_exists.fetchall()
+    admin_tuple = admin_exists.fetchall()
+    db.commit()
+    if(len(users_tuple) > 0 and len(admin_tuple) == 0): #user_id exists in the table already
+        return True
+    return False
+
+@app.route('/admin/remove_admin', methods = ['POST'])
+def remove_admin():
+    user_id = request.form['user_id']
+    remove_admin_statement = f'DELETE FROM administrator WHERE user_id = {user_id}'
+    try:
+        db.execute(sqlalchemy.text(remove_admin_statement))
+        db.commit()
+        return redirect('/admin/update_admin')
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+        
 # Allows admins to update or delete table entries 
 @app.route('/admin/update_tables', methods = ['GET','POST'])
 def admin_update_tables():
-    pass
+    if request.method == 'POST':
+        table = request.form['table']
+        num_display = request.form['num_display']
+        query = f'SELECT * FROM {table} LIMIT {num_display};'
+        header_names = f"""
+            SELECT column_name
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = '{table}'
+            ORDER BY ordinal_position;
+            """
+        try:
+            res = db.execute(sqlalchemy.text(query))
+            headers = db.execute(sqlalchemy.text(header_names))
+            res_tuple = res.fetchall()
+            header_tuple = headers.fetchall()
+            header_tuple = tuple(map(lambda x: x[0], header_tuple))
+            db.commit()
+            return render_template('admin_tables.html', table = table, header_names = header_tuple, query = res_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return render_template('admin_tables.html')
     
+@app.route('/admin/add_col', methods = ['POST'])
+def admin_add_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    type = request.form['type']
+    contraints = request.form['constraints']
+    alter_statement = f'ALTER TABLE {table_to_alter} ADD COLUMN {column_name} {type} {contraints};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
 
+@app.route('/admin/drop_col', methods = ['POST'])
+def admin_drop_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} DROP COLUMN {column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/rename_col', methods = ['POST'])
+def admin_rename_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    new_column_name = request.form['new_column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME COLUMN {column_name} TO {new_column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/rename_table', methods = ['POST'])
+def admin_rename_table():
+    table_to_alter = request.form['table_to_alter']
+    new_table_name = request.form['new_table_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME TO {new_table_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/drop_table', methods = ['POST'])
+def admin_drop_table():
+    table_to_alter = request.form['table_to_alter']
+    alter_statement =f'DROP TABLE IF EXISTS {table_to_alter};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+    
 # Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
 def admin_query():
@@ -638,7 +788,6 @@ def admin_join_tables():
     }
     
     if request.method == 'POST':
-        
         db1 = request.form['db1']
         db2 = request.form['db2']
         num_display = request.form['num_display']
