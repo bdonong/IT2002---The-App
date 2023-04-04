@@ -570,12 +570,72 @@ def admin_update_tables():
             return Response(str(e), 403)
     return render_template('admin_tables.html')
     
-@app.route('/admin/alter_table', method = ['POST'])
-def admin_alter_table():
+@app.route('/admin/add_col', methods = ['POST'])
+def admin_add_col():
     table_to_alter = request.form['table_to_alter']
-    operation = request.form['operation']
     column_name = request.form['column_name']
-    amendment = request.form.get('amendment', '')
+    type = request.form['type']
+    contraints = request.form['constraints']
+    alter_statement = f'ALTER TABLE {table_to_alter} ADD COLUMN {column_name} {type} {contraints};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/drop_col', methods = ['POST'])
+def admin_drop_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} DROP COLUMN {column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/rename_col', methods = ['POST'])
+def admin_rename_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    new_column_name = request.form['new_column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME COLUMN {column_name} TO {new_column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/rename_table', methods = ['POST'])
+def admin_rename_table():
+    table_to_alter = request.form['table_to_alter']
+    new_table_name = request.form['new_table_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME TO {new_table_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+@app.route('/admin/drop_table', methods = ['POST'])
+def admin_drop_table():
+    table_to_alter = request.form['table_to_alter']
+    alter_statement =f'DROP TABLE IF EXISTS {table_to_alter};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
     
 # Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
