@@ -475,12 +475,62 @@ def admin_sign_in(user_id,password_hash):
 # Update the admin tables for extra permissions
 @app.route('/admin/update_admin', methods = ['GET','POST'])
 def admin_update():
+    if request.method == 'POST':
+        user_id = int(request.form['user_id'])
+        new_permissions = request.form['permissions']
+        update_query = f"""UPDATE administrator 
+                           SET permissions = '{new_permissions}'
+                           WHERE user_id = {user_id};"""
+        try:
+            db.execute(sqlalchemy.text(update_query))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+        
     current_admins_query = "SELECT user_id, permissions FROM administrator;"
     current_admins = db.execute(sqlalchemy.text(current_admins_query))
     admins_tuple = current_admins.fetchall()
     db.commit()
     return render_template('admin_update.html', admins_tuple = admins_tuple)
 
+
+@app.route('/admin/add_admin', methods = ['POST'])
+def add_admin():
+        user_id = int(request.form['user_id'])
+        password = request.form['password']
+        permissions = request.form['permissions']
+        if admin_check(user_id):
+            insert_statement = f"""INSERT INTO administrator values (
+                                {user_id}, '{password}', '{permissions}'
+                                )
+                                """
+            try:
+                db.execute(sqlalchemy.text(insert_statement))
+                db.commit()
+                return redirect('/admin/update_admin')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+
+def admin_check(user_id):
+        user_id_check = f"""SELECT user_id 
+                            FROM users 
+                            WHERE user_id = {user_id}"""
+        admin_exists_check = f"""SELECT user_id
+                                 FROM administrator
+                                 WHERE user_id = {user_id}"""
+        user_exists = db.execute(sqlalchemy.text(user_id_check))
+        admin_exists = db.execute(sqlalchemy.text(admin_exists_check))
+        users_tuple = user_exists.fetchall()
+        admin_tuple = admin_exists.fetchall()
+        db.commit()
+        if(len(users_tuple) > 0 and len(admin_tuple) < 0): #user_id exists in the table already
+            return True
+        return False
+        
+        
 # Allows admins to update or delete table entries 
 @app.route('/admin/update_tables', methods = ['GET','POST'])
 def admin_update_tables():
