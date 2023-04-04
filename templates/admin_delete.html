@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Delete User Entry</title>
+</head>
+<body>
+	<h1>Delete User Entry</h1>
+	<p>Select the user you want to delete:</p>
+
+	<!-- Dropdown to select the user -->
+	<form action="/admin/delete_user" method="POST">
+		<label for="user_id">Enter user ID :</label>
+		<input type="number" id="user_id" name="user_id" min="1">
+		<button type="submit">Delete User Entry</button>
+	</form>
+</body>
+</html>

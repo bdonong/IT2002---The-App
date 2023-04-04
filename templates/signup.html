@@ -4,50 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>University Property - Sign Up</title>
-    <!-- Add CSS file -->
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5F5F5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border-bottom: 1px solid #CCCCCC;
+        }
+        h1, p {
+            color: #005EA7;
+        }
+        main {
+            text-align: center;
+            margin: 20px 0;
+        }
+        form {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            width: 400px;
+        }
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        input[type="number"], input[type="password"], input[type="text"], input[type="email"], input[type="tel"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #005EA7;
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #004C95;
+        }
+        footer {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-
     <header>
         <h1>SIGN UP</h1>
         <p>Create an account for free</p>
     </header>
-
+    
     <main>
         <form action="/signup" method="POST">
             <label for="user_id">User ID</label><br>
             <input type="number" id="user_id" name="user_id" required><br><br>
-
+    
             <label for="password">Password</label><br>
             <input type="password" id="password" name="password" required><br><br>
-
+    
             <label for="name">Name</label><br>
             <input type="text" id="name" name="name" required><br><br>
-
+    
             <label for="email">Email</label> <br>
             <input type="email" id="email" name="email" required><br><br>
-
+    
             <label for="phone">Phone Number</label><br>
             <input type="tel" id="phone" name="phone" required><br><br>
-
+    
             <label for="gender">Gender</label><br>
             <select id="gender" name="gender" required>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
             </select><br><br>
-
+    
             <label for="age">Age</label><br>
-            <input type="number" id="age" name="age" min="1" required><br>
-            
-            <br>
+            <input type="number" id="age " name="age" min="1" required><br><br>
             <input type="submit" value="Sign Up">
         </form>
     </main>
-
+    
     <footer>
         <p>&copy; 2023 NUSrentals. All rights reserved.</p>
     </footer>
-
 </body>
-</html>
+</html>    
+    
