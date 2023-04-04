@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Tables</title>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Select a Table</h2>
+            <form action="/admin/update_tables" method="POST">
+                <label for="table">Choose a table:</label>
+                <select id="table" name="table">
+                    <option value="users">Users</option>
+                    <option value="property">Properties</option>
+                    <option value="review">Reviews</option>
+                    <option value="booking">Bookings</option>
+                    <option value="transaction">Transactions</option>
+                </select>
+
+                <label for="num_display">Number of results to display:</label>
+                <select id="num_display" name="num_display" required>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select><br>
+                <input type="submit" value="View Table">
+            </form>
+            <table>
+                <caption>Results table: {{ table }}</caption>
+                {% for header in header_names %}
+                <th>{{ header }}</th>
+                {% endfor %}
+                {% for row in query %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr><br>
+                {% endfor %}
+                <hr>
+            </table>
+        </section>
+        <section>
+            <h2>Alter Table</h2>
+            <form action="/admin/alter_table" method="POST" onsubmit="return validateForm()">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+
+                <label for="operation">Choose an operation:</label>
+                <select id="operation" name="operation" onchange="showAdditionalInput()">
+                    <option value="add_column">Add Column</option>
+                    <option value="drop_column">Drop Column</option>
+                    <option value="rename_column">Rename Column</option>
+                    <option value="alter_column">Alter Column</option>
+                    <option value="add_check">Add Check</option>
+                    <option value="add_constraint">Add Constraint</option>
+                </select>
+
+                <label for="column_name">Column Name:</label>
+                <input type="text" id="column_name" name="column_name">
+
+                <div id="additional_input" style="display: none;">
+                    <label for="amendment">Amendment:</label>
+                    <input type="text" id="amendment" name="amendment">
+                </div>
+
+                <input type="submit" value="Submit">
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function showAdditionalInput() {
+            const operation = document.getElementById('operation').value;
+            const additionalInput = document.getElementById('additional_input');
+
+            if (operation === 'rename_column' || operation === 'alter_column') {
+                additionalInput.style.display = 'block';
+            } else {
+                additionalInput.style.display = 'none';
+            }
+        }
+
+        function validateForm() {
+            const operation = document.getElementById('operation').value;
+            const column_name = document.getElementById('column_name').value
+            const amendment = document.getElementById('amendment').value;
+
+        if ((operation === 'rename_column' || operation === 'alter_column') && (column_name === '' || amendment === '')) {
+            alert('Please fill in both column name and amendment.');
+            return false;
+        } else if (column_name === '') {
+            alert('Please fill in the column name.');
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

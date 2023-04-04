@@ -1,7 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Manage Admins</title>
+    <title>Manage Admins</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h3, h4 {
+            color: #333;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            margin-bottom: 30px;
+            width: 80%;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            font-size: 1rem;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: #ccc;
+        }
+    </style>
 </head>
 <body>
 	<h1>Manage Admins</h1>
@@ -20,7 +96,6 @@
 	<hr>
 
 	<h3>Update an admin</h3>
-	<!-- Dropdown to select the user -->
 	<form action="/admin/update_admin" method="POST">
 		<label for="user_id">Enter user ID :</label>
 		<input type="number" id="user_id" name="user_id"><br>
@@ -31,7 +106,6 @@
 
 	<h3>Add an admin</h3>
 	<h4>Note: admin has to be a registered user</h4>
-	<!-- Dropdown to select the user -->
 	<form action="/admin/add_admin" method="POST">
 		<label for="user_id">Enter user ID :</label>
 		<input type="number" id="user_id" name="user_id"><br>
@@ -43,8 +117,8 @@
 	</form>
 
 	<h3>Remove an admin</h3>
-	<!-- Dropdown to select the user -->
 	<form action="/admin/remove_admin" method="POST">
+		<h4>Note: Deletion is permanent!</h4>
 		<label for="user_id">Enter user ID :</label>
 		<input type="number" id="user_id" name="user_id"><br>
 		<button type="submit">Remove</button>
