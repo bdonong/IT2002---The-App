@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUSrentals</title>
+</head>
+<body>
+    <h1>Welcome to NUSrentals!</h1>
+    <h2>Login</h2>
+    <form action="/login" method="post">
+        <label for="user_id">User ID:</label>
+        <input type="number" id="user_id" name="user_id" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        
+        <input type="submit" value="Sign In">
+    </form>
+    <br>
+    <button onclick="location.href='/signup'">Sign Up</button>
+</body>
+</html>

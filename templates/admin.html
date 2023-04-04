@@ -4,14 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NUSrentals - Administrator</title>
-    <!-- Add CSS Here -->
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFFFFF;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #005EA7;
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            color: #FFFFFF;
+            margin: 0;
+        }
+        main {
+            padding: 20px;
+        }
+        h2 {
+            color: #005EA7;
+            margin-bottom: 20px;
+        }
+        ul, form {
+            margin-bottom: 40px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: #FF590D;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        input[type="submit"] {
+            background-color: #FF590D;
+            color: #FFFFFF;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #FF7F3A;
+        }
+        h3 {
+            color: #005EA7;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        th, td {
+            border: 1px solid #CCCCCC;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #F3F3F3;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #F3F3F3;
+        }
+        hr {
+            border: 1px solid #CCCCCC;
+            margin: 40px 0;
+        }
+        footer {
+            background-color: #005EA7;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
 </head>
-
 <header>
     <h1>NUSrentals - Administration</h1>
 </header>
-
 <body>
     <main>
         <section>
@@ -22,12 +104,12 @@
             </ul>
         </section>
         <form action="/admin/data_query" method="POST" >
-            <h2><label for = "queries">Data Query</label></h2>
-                <select id = "query" name = "query" required>
-                    <option value = "num_users" selected>Number of Users</option>
-                    <option value = "num_properties">Number of Properties</option>
-                    <option value = "transaction_avg">Transaction Average</option>
-                    <option value = "transaction_stddev">Transaction Standard Deviation</option>
+            <h2><label for="queries">Data Query</label></h2>
+                <select id="query" name="query" required>
+                    <option value="num_users" selected>Number of Users</option>
+                    <option value="num_properties">Number of Properties</option>
+                    <option value="transaction_avg">Transaction Average</option>
+                    <option value="transaction_stddev">Transaction Standard Deviation</option>
                 </select>
             <br><br>
             <input type="submit" value="Get Data">
@@ -35,17 +117,17 @@
         <h3>Query: {{ executed_query }}</h3>
         <h3>Results: {{  data_query_res  }}</h3>
         <hr>
-
         <form action="/admin/data_list_query" method="POST" >
-            <h2><label for = "queries">Data List Query</label></h2>
-                <select id = "query" name = "query" required>
-                    <option value = "GST_room_rate">GST applied if rate is higher than $1500</option>
-                    <option value = "highest_spending_users" selected>Highest Spending Users</option>
-                    <option value = "highest_value_transactions">Top 5 Highest Value Transactions</option>
-                    <option value = "highest_rated_properties">Top 5 Highest Rated Properties</option>
-                    <option value = "users_no_transactions">Users who have not completed any transactions</option>
-                    <option value = "unpaid_users">Users who booked but not paid</option>
-                    <option value = "most_bookings_users">Users with the most bookings</option>
+            <h2><label for="queries">Data List Query</label></h2>
+                <select id="query" name="query" required>
+                    <option value="GST_room_rate">GST applied if rate is higher than $1500</option>
+                    <option value="highest_spending_users" selected>Highest Spending Users</option>
+                    <option value="highest_value_transactions">Top 5 Highest Value Transactions</option>
+                    <option value="highest_rated_properties">Top 5 Highest Rated Properties</option>
+                    <option value="users_no_transactions">Users who have not completed any transactions</option>
+                    <option value="unpaid_users">Users who booked but not paid</option>
+                    <option value="most_bookings_users">Users with the most bookings</option>
+                </select>
             <br>
             <input type="submit" value="Get List">
         </form>
@@ -64,59 +146,59 @@
             {% endfor %}
         </table>
         <hr>
-
+    
         <!--To join two tables together-->
         <form action="/admin/join_tables" method="POST" >
-            <label for = "databases"><h2>Database Selection (Cross Join)</h2></label>
-
-            <select id = "db1" name = "db1" required>
-                <option value = "booking" selected>Booking</option>
-                <option value = "property">Property</option>
-                <option value = "review">Review</option>
-                <option value = "transaction">Transaction</option>
-                <option value = "users">User</option>
+            <label for="databases"><h2>Database Selection (Cross Join)</h2></label>
+    
+            <select id="db1" name="db1" required>
+                <option value="booking" selected>Booking</option>
+                <option value="property">Property</option>
+                <option value="review">Review</option>
+                <option value="transaction">Transaction</option>
+                <option value="users">User</option>
             </select>
+    
+            <select id="db2" name="db2" required>
+            <option value="booking">Booking</option>
+            <option value="property" selected>Property</option>
+            <option value="review">Review</option>
+            <option value="transaction">Transaction</option>
+            <option value="users">User</option>
+        </select>
+        
+        <h4>Number of results to display: </h4>
+        <select id="num_display" name="num_display" required>
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        
+        <br>
 
-            <select id = "db2" name = "db2" required>
-                <option value = "booking">Booking</option>
-                <option value = "property" selected>Property</option>
-                <option value = "review">Review</option>
-                <option value = "transaction">Transaction</option>
-                <option value = "users">User</option>
-            </select>
-            
-            <h4>Number of results to display: </h4>
-            <select id = "num_display" name = "num_display" required>
-                <option value = "5">5</option>
-                <option value = "10" selected>10</option>
-                <option value = "20">20</option>
-                <option value = "50">50</option>
-                <option value = "100">100</option>
-            </select>
-            
-            <br>
-
-            <input type="submit" value="Get Table">
-            
-        </form>
-        <table>
-            <caption>Results table:</caption>
-            {% for header in header_names %}
-            <th>{{ header }}</th>
+        <input type="submit" value="Get Table">
+        
+    </form>
+    <table>
+        <caption>Results table:</caption>
+        {% for header in header_names %}
+        <th>{{ header }}</th>
+        {% endfor %}
+        {% for row in join_query %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
             {% endfor %}
-            {% for row in join_query %}
-            <tr>
-                {% for cell in row %}
-                <td>{{ cell }}</td>
-                {% endfor %}
-            </tr><br>
-            {% endfor %}
-            <hr>
-        </table>
-    </main> <br><br>
+        </tr><br>
+        {% endfor %}
+        <hr>
+    </table>
+</main> <br><br>
 
-    <footer>
-        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
-    </footer>
+<footer>
+    <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+</footer>
 </body>
 </html>

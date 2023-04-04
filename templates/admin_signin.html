@@ -4,19 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NUSrentals - Admin Sign in</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFFFFF;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h2 {
+            color: #005EA7;
+            margin-bottom: 30px;
+        }
+        form {
+            background-color: #F3F3F3;
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        label {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input[type="number"],
+        input[type="password"] {
+            padding: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        input[type="submit"] {
+            background-color: #FF590D;
+            color: #FFFFFF;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #FF7F3A;
+        }
+        h3 {
+            color: #CC0000;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Admin Login</h2>
-    <form action="/admin" method="POST">
-        <label for="user_id">User ID:</label>
-        <input type="number" id="user_id" name="user_id" required><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br>
-        
-        <input type="submit" value="Sign In">
-    </form>
-    <h3>{{ error }}</h3>
-    <br>
+    <div class="container">
+        <h2>Admin Login</h2>
+        <form action="/admin" method="POST">
+            <label for="user_id">User ID:</label>
+            <input type="number" id="user_id" name="user_id" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <input type="submit" value="Sign In">
+        </form>
+        <h3>{{ error }}</h3>
+    </div>
 </body>
 </html>
