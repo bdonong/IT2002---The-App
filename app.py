@@ -12,7 +12,9 @@ import sqlalchemy
 from typing import Dict
 from datetime import date
 from hashlib import sha256
+import random
 import time
+import datetime
 # ? web-based applications written in flask are simply called apps are initialized in this format from the Flask base class. You may see the contents of `__name__` by hovering on it while debugging if you're curious
 app = Flask(__name__)
 
@@ -283,7 +285,13 @@ def landing_page():
 def home():
     cookies = request.cookies.get('session_cookies')
     if get_user_cookies(cookies) != None:
-        return render_template('home.html', userID=get_user_cookies(cookies))
+        listings = f"SELECT * FROM property WHERE availability = 'yes' ORDER BY room_rate LIMIT 3"
+        statement = sqlalchemy.text(listings)
+        res = db.execute(statement)
+        db.commit()
+        res_tuple = res.fetchall()
+        print(res_tuple)
+        return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
         return redirect(url_for(''))
 
@@ -344,13 +352,13 @@ def signup():
             # Redirect to the login page after successful signup
             try:
                 print("Trying")
-                insert_command = f"INSERT INTO users VALUES ({user_id}, '{passwordhash}', '{name}', '{email}', '{phone}', '{gender}', {age});"
-                statement = sqlalchemy.text(insert_command)
-                db.execute(statement)
-                db.commit()
                 user_cookies = secret_key + str(user_id) + str(time.time())
                 hashedcookies = sha256(user_cookies.encode('utf-8')).hexdigest()
                 update_cookies(user_id, hashedcookies)
+                insert_command = f"INSERT INTO users VALUES ({user_id}, '{passwordhash}', '{hashedcookies}', '{name}', '{email}', '{phone}', '{gender}', {age});"
+                statement = sqlalchemy.text(insert_command)
+                db.execute(statement)
+                db.commit()
                 resp = redirect(url_for("home"))
                 resp.set_cookie('session_cookies', hashedcookies)
                 return resp
@@ -408,6 +416,18 @@ def get_user_cookies(cookies):
         return name
     else:
         return None
+# This function returns ID from cookies
+def get_user_id(cookies):
+    find_user = f"SELECT user_id from users WHERE session_cookies = '{cookies}'"
+    statement = sqlalchemy.text(find_user)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    if len(res_tuple) > 0:
+        id = res_tuple[0][0]
+        return id
+    else:
+        return None
 
 # Takes user_id and password and creates a new user
 # Add fields for name, email, phone number, gender & age
@@ -421,24 +441,69 @@ def sign_up(user_id):
         return False
     return True
 
+# This path displays the property that the user is looking at and displays it on the webpage
+@app.route('/property', methods=['GET', 'POST'])
+def Property():
+    if request.method == "POST":
+        property_id = request.form['getproperty']
+        cookies = request.cookies.get('session_cookies')
+        if get_user_cookies(cookies) != None:
+            property_tuple = getProperty(property_id)
+            return render_template('property.html', currlisting = property_tuple)
+    else:
+        redirect(url_for('/'))
+
+def getProperty(id):
+    find_property = f"SELECT * from property WHERE property_id = {id}"
+    statement = sqlalchemy.text(find_property)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    return res_tuple
+
 # Checks if the user can book first, through the property_booking method
 # If available -> bookslot, which inserts the booking into the bookings table
 # Else -> throw an error saying the property is not available 
 @app.route('/book', methods = ['POST'])
-def booking_details(session_token, property_id):
+def bookingweb():
     if request.method == 'POST':
-        cookies = request.headers['cookie']
+        cookies = request.cookies.get('session_cookies')
         property_id = request.form['property_id']
-        if (property_booking_check(cookies, property_id)) == True: # property available
-            bookslot(cookies, property_id)
-            return redirect(url_for("confirmation"))
-        else:
-            # Show an error message if signup fails
-            error = 'Property not available for booking. Please select another property'
-            return render_template('booking.html', error=error)
-    else:
-        return render_template('booking.html')
-    
+        start_time = request.form['date1']
+        end_time = request.form['date2']
+        # Find user id
+        user_id = get_user_id(cookies)
+        # Check for valid cookies and valid property
+        if user_id != None:
+            ## Book the property, validity check done in browser
+            bookingID = bookingproperty(property_id, user_id, start_time, end_time)
+            bookingdetails = getbooking(bookingID)
+            if bookingdetails != None:
+                return render_template('confirmation.html', preferredlisting = bookingdetails)
+    return redirect(url_for("home")) 
+
+
+
+def bookingproperty(property_id, user_id, start_time, end_time):
+    bookingID = random.randrange(0,2^8-1)
+    booking_date = datetime.date.today()
+    book_property = f"INSERT INTO booking VALUES ({bookingID}, {property_id}, {user_id}, {start_date}, {end_date}, {booking_date}, 'processing')"
+    statement = sqlalchemy.text(book_property)
+    res = db.execute(statement)
+    db.commit()
+    return bookingID
+
+def getbooking(bookingID):
+    bookingDetails = f"SELECT * FROM booking WHERE booking_id = {bookingID}"
+    statement = sqlalchemy.text(bookingDetails)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    return res_tuple
+
+
+
+
     
 # Routing to the home admin page
 @app.route('/admin/home')
@@ -871,11 +936,7 @@ def bookslot(session_token, property_id):
     return res
 
 # Checks if the property is available, by checking if the availability in the database == 'yes'
-def property_booking_check(session_token, property_id):
-    if session_token in session:
-        for key, value in session.iteritems():
-            if value == session_token:
-                user_id = key
+def property_booking_check(property_id):
     property_check = f'SELECT availibility FROM property WHERE property_id = {property_id}'
     try:
         res = db.execute(sqlalchemy.text(property_check))
