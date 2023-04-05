@@ -325,15 +325,16 @@ def login():
 
 
 # Create a route for the signout of user
-@app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    cookies = request.cookies.get('session_cookies')
-    remove_command = f"UPDATE users SET session_cookies = null WHERE session_cookies = '{cookies}'"
-    statement = sqlalchemy.text(remove_command)
-    db.execute(statement)
-    db.commit()
+    if request.method == 'POST':
+        cookies = request.cookies.get('session_cookies')
+        remove_command = f"UPDATE users SET session_cookies = null WHERE session_cookies = '{cookies}'"
+        statement = sqlalchemy.text(remove_command)
+        db.execute(statement)
+        db.commit()
+        return render_template('landing.html')
     return render_template('landing.html')
-        
     
 # Create a route for the sign up page
 @app.route('/signup', methods=['GET', 'POST'])
