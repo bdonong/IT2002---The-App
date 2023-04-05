@@ -276,7 +276,12 @@ def create_users_table():
 def landing_page():
     cookies = request.cookies.get('session_cookies')
     if get_user_cookies(cookies) != None:
-        return render_template('home.html', userID=get_user_cookies(cookies))
+        listings = f"SELECT * FROM property WHERE availability = 'yes' ORDER BY room_rate LIMIT 3"
+        statement = sqlalchemy.text(listings)
+        res = db.execute(statement)
+        db.commit()
+        res_tuple = res.fetchall()
+        return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
         return render_template('landing.html')
 
@@ -290,7 +295,6 @@ def home():
         res = db.execute(statement)
         db.commit()
         res_tuple = res.fetchall()
-        print(res_tuple)
         return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
         return redirect(url_for(''))
@@ -464,13 +468,13 @@ def getProperty(id):
 # Checks if the user can book first, through the property_booking method
 # If available -> bookslot, which inserts the booking into the bookings table
 # Else -> throw an error saying the property is not available 
-@app.route('/book', methods = ['POST'])
-def bookingweb():
+@app.route('/book', methods = ['GET','POST'])
+def book():
     if request.method == 'POST':
         cookies = request.cookies.get('session_cookies')
         property_id = request.form['property_id']
-        start_time = request.form['date1']
-        end_time = request.form['date2']
+        start_time = request.form['startdate']
+        end_time = request.form['enddate']
         # Find user id
         user_id = get_user_id(cookies)
         # Check for valid cookies and valid property
@@ -485,9 +489,9 @@ def bookingweb():
 
 
 def bookingproperty(property_id, user_id, start_time, end_time):
-    bookingID = random.randrange(0,2^8-1)
+    bookingID = random.randrange(0,2**7)
     booking_date = datetime.date.today()
-    book_property = f"INSERT INTO booking VALUES ({bookingID}, {property_id}, {user_id}, {start_date}, {end_date}, {booking_date}, 'processing')"
+    book_property = f"INSERT INTO booking VALUES ({bookingID}, {property_id}, {user_id}, '{start_time}', '{end_time}', '{booking_date}', 'processing')"
     statement = sqlalchemy.text(book_property)
     res = db.execute(statement)
     db.commit()
@@ -499,6 +503,7 @@ def getbooking(bookingID):
     res = db.execute(statement)
     db.commit()
     res_tuple = res.fetchall()
+    print(res_tuple)
     return res_tuple
 
 
