@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Tables</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2, h4 {
+            color: #005EA7;
+        }
+
+        header {
+            background-color: #005EA7;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+        }
+
+        main {
+            width: 80%;
+            margin: 2rem;
+        }
+
+        form {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input, select {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            font-size: 1rem;
+            padding: 5px 10px;
+            background-color: #FF590D;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #FF7F3A;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        caption {
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: #ccc;
+        }
+
+        footer {
+            background-color: #005EA7;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Table Management Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Select a Table</h2>
+            <form action="/admin/update_tables" method="POST">
+                <label for="table">Choose a table:</label>
+                <select id="table" name="table">
+                    <option value="users">Users</option>
+                    <option value="property">Properties</option>
+                    <option value="review">Reviews</option>
+                    <option value="booking">Bookings</option>
+                    <option value="transaction">Transactions</option>
+                </select>
+
+                <label for="num_display">Number of results to display:</label>
+                <select id="num_display" name="num_display" required>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select><br>
+                <input type="submit" value="View Table">
+            </form>
+            <table>
+                <caption>Results table: {{ table }}</caption>
+                {% for header in header_names %}
+                <th>{{ header }}</th>
+                {% endfor %}
+                {% for row in query %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr><br>
+                {% endfor %}
+                <hr>
+            </table>
+        </section>
+        <section>
+            <h2>Alter Tables</h2>
+            <h4>Add Columns</h4>
+            <form action="/admin/add_col" method="POST">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+
+                <label for="column_name">Column Name:</label>
+                <input type="text" id="column_name" name="column_name">
+
+                <select id="type" name="type">
+                    <option value="VARCHAR(255)">VARCHAR(255)</option>
+                    <option value="TEXT">TEXT</option>
+                    <option value="INT">INT</option>
+                    <option value="TIMESTAMP">TIMESTAMP</option>
+                    <option value="DATE">DATE</option>
+                    <option value="BOOLEAN">BOOLEAN</option>
+                </select>
+
+                <div id="constraints">
+                    <label for="constraints">Constraints:</label>
+                    <input type="text" id="constraints" name="constraints">
+                </div>
+
+                <input type="submit" value="Submit">
+            </form>
+
+            <h4>Drop Columns</h4>
+            <form action="/admin/drop_col" method="POST">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+
+                <label for="column_name">Column Name:</label>
+                <input type="text" id="column_name" name="column_name">
+
+                <input type="submit" value="Submit">
+            </form>
+
+            <h4>Rename Columns</h4>
+            <form action="/admin/rename_col" method="POST">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+
+                <label for="column_name">Column Name:</label>
+                <input type="text" id="column_name" name="column_name">
+                
+                <label for="new_column_name">New column Name:</label>
+                <input type="text" id="new_column_name" name="new_column_name">
+                <input type="submit" value="Submit">
+            </form>
+
+            <h4>Rename Tables</h4>
+            <form action="/admin/rename_table" method="POST">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+
+                <label for="new_table_name">New Table Name:</label>
+                <input type="text" id="new_table_name" name="new_table_name">
+                <input type="submit" value="Submit">
+            </form>
+
+            <h4>Drop Tables</h4>
+            <form action="/admin/drop_table" method="POST">
+                <label for="table_to_alter">Choose a table to alter:</label>
+                <select id="table_to_alter" name="table_to_alter">
+                    <option value="users">Users</option>
+                    <option value="properties">Properties</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="bookings">Bookings</option>
+                    <option value="transactions">Transactions</option>
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+</body>
+</html>

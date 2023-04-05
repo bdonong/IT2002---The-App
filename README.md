@@ -6,6 +6,9 @@
  - Github Flow -> https://docs.github.com/en/get-started/quickstart/github-flow
  - Contributing to projects -> https://docs.github.com/en/get-started/quickstart/contributing-to-projects
  - General Quickstart links -> https://docs.github.com/en/get-started/quickstart
+ 
+ # CSS Guide
+ https://www.freecodecamp.org/news/the-css-handbook-a-handy-guide-to-css-for-developers-b56695917d11/
 
 <!-- write about how to create their own pipenv, then install flask and python -->
 

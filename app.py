@@ -310,15 +310,6 @@ def login():
         ## Set cookies
         resp = redirect(url_for("home"))
         resp.set_cookie('session_cookies', hashedcookies)
-        # if admin_login == 'off':
-        #     resp = redirect(url_for("home"))
-        #     resp.set_cookie('session_cookies', hashedcookies)
-        # elif(admin_sign_in):
-        #     # check if the user is in the administrator table
-        #     resp = redirect(url_for("admin"))
-        #     resp.set_cookie('session_cookies', hashedcookies)
-        # else:
-        #     return render_template('login.html')
         return resp
             
     return render_template('login.html')
@@ -381,17 +372,6 @@ def update_cookies(user_id, cookies):
     res = db.execute(statement)
     db.commit()
     return True
-
-def admin_sign_in(user_id):
-    admin_check = f'SELECT user_id FROM administrators WHERE user_id = {user_id};'
-    statement = sqlalchemy.text(admin_check)
-    res = db.execute(statement)
-    db.commit()
-    res_tuple = res.fetchall()
-    if res_tuple == None:
-        return False
-    elif len(res_tuple) > 0:
-        return True
 
 # Gets the password of the user, from the user_id
 def get_password(user_id):
@@ -461,11 +441,216 @@ def booking_details(session_token, property_id):
     
     
 # Routing to the home admin page
-@app.route('/admin')
+@app.route('/admin/home')
 def admin_page():
-    if 'user_id' in session:
-        user_id = session['user_id']
-        return render_template('admin.html', userID=user_id)
+    return render_template('admin.html')
+
+# Landing page for admins - provides special admin sign-in
+# redirects to admin homepage after completion
+@app.route('/admin', methods = ['GET','POST'])
+def admin_signin_page():
+    if request.method == 'POST':
+        # Call the sign_in function and pass user_id and password
+        user_id = int(request.form['user_id'])
+        password = request.form['password']
+        if admin_sign_in(user_id,password) == False:
+            # Show an error message if login fails
+            error = 'Invalid user ID or password. Please try again.'
+            print("Error")
+            return render_template('admin_signin.html', error=error)
+        print("redirecting....")
+        return redirect('/admin/home')
+    return render_template('admin_signin.html')  
+
+# Function to assist in admin sign-in
+# Checks if user is in the administrator table and if the passsword is correct
+def admin_sign_in(user_id,password_hash):
+    admin_check = f'SELECT user_id, password_hash FROM administrator WHERE user_id = {user_id};'
+    statement = sqlalchemy.text(admin_check)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    print(password_hash)
+    print(res_tuple[0][1])
+    if len(res_tuple) > 0 and res_tuple[0][1] == password_hash:
+        return True
+    else:
+        return False
+
+# Admin management page
+# Update the admin tables for extra permissions and displays current admins and their permissions
+@app.route('/admin/update_admin', methods = ['GET','POST'])
+def admin_update():
+    if request.method == 'POST':
+        user_id = int(request.form['user_id'])
+        new_permissions = request.form['permissions']
+        update_query = f"""UPDATE administrator 
+                           SET permissions = '{new_permissions}'
+                           WHERE user_id = {user_id};"""
+        try:
+            db.execute(sqlalchemy.text(update_query))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+        
+    current_admins_query = "SELECT user_id, permissions FROM administrator;"
+    current_admins = db.execute(sqlalchemy.text(current_admins_query))
+    admins_tuple = current_admins.fetchall()
+    db.commit()
+    return render_template('admin_update.html', admins_tuple = admins_tuple)
+
+# Adds an admin to the admistrator table
+# uses admin_check to check validity
+@app.route('/admin/add_admin', methods = ['POST'])
+def add_admin():
+    user_id = int(request.form['user_id'])
+    password = request.form['password']
+    permissions = request.form['permissions']
+    if admin_check(user_id):
+        print('checked!')
+        insert_statement = f"""INSERT INTO administrator values (
+                            {user_id}, '{password}', '{permissions}'
+                            )
+                            """
+        try:
+            db.execute(sqlalchemy.text(insert_statement))
+            db.commit()
+            return redirect('/admin/update_admin')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return redirect('/admin/update_admin')
+
+# Checks if the user already exists and if it is not currently already in the administrator table
+def admin_check(user_id):
+    user_id_check = f"""SELECT user_id 
+                        FROM users 
+                        WHERE user_id = {user_id}"""
+    admin_exists_check = f"""SELECT user_id
+                                FROM administrator
+                                WHERE user_id = {user_id}"""
+    user_exists = db.execute(sqlalchemy.text(user_id_check))
+    admin_exists = db.execute(sqlalchemy.text(admin_exists_check))
+    users_tuple = user_exists.fetchall()
+    admin_tuple = admin_exists.fetchall()
+    db.commit()
+    if(len(users_tuple) > 0 and len(admin_tuple) == 0):
+        return True
+    return False
+
+# Part of the admin management page, and remove the admin from the administrator table
+@app.route('/admin/remove_admin', methods = ['POST'])
+def remove_admin():
+    user_id = request.form['user_id']
+    remove_admin_statement = f'DELETE FROM administrator WHERE user_id = {user_id}'
+    try:
+        db.execute(sqlalchemy.text(remove_admin_statement))
+        db.commit()
+        return redirect('/admin/update_admin')
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+        
+# Table management page
+# POST method allows admins to select and display specific tables
+@app.route('/admin/update_tables', methods = ['GET','POST'])
+def admin_update_tables():
+    if request.method == 'POST':
+        table = request.form['table']
+        num_display = request.form['num_display']
+        query = f'SELECT * FROM {table} LIMIT {num_display};'
+        header_names = f"""
+            SELECT column_name
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = '{table}'
+            ORDER BY ordinal_position;
+            """
+        try:
+            res = db.execute(sqlalchemy.text(query))
+            headers = db.execute(sqlalchemy.text(header_names))
+            res_tuple = res.fetchall()
+            header_tuple = headers.fetchall()
+            header_tuple = tuple(map(lambda x: x[0], header_tuple))
+            db.commit()
+            return render_template('admin_tables.html', table = table, header_names = header_tuple, query = res_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    return render_template('admin_tables.html')
+
+# Adds a column to the specified table, part of the table management 
+@app.route('/admin/add_col', methods = ['POST'])
+def admin_add_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    type = request.form['type']
+    contraints = request.form['constraints']
+    alter_statement = f'ALTER TABLE {table_to_alter} ADD COLUMN {column_name} {type} {contraints};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+# Removes a column from the specified table, part of table management
+@app.route('/admin/drop_col', methods = ['POST'])
+def admin_drop_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} DROP COLUMN {column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+# Renames the specified column, part of table management
+@app.route('/admin/rename_col', methods = ['POST'])
+def admin_rename_col():
+    table_to_alter = request.form['table_to_alter']
+    column_name = request.form['column_name']
+    new_column_name = request.form['new_column_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME COLUMN {column_name} TO {new_column_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+# Renames the specified table, part of table management
+@app.route('/admin/rename_table', methods = ['POST'])
+def admin_rename_table():
+    table_to_alter = request.form['table_to_alter']
+    new_table_name = request.form['new_table_name']
+    alter_statement = f'ALTER TABLE {table_to_alter} RENAME TO {new_table_name};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
+
+# Drops the specified table, part of table management
+@app.route('/admin/drop_table', methods = ['POST'])
+def admin_drop_table():
+    table_to_alter = request.form['table_to_alter']
+    alter_statement =f'DROP TABLE IF EXISTS {table_to_alter};'
+    try:
+        db.execute(sqlalchemy.text(alter_statement))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return Response(str(e), 403)
+    return redirect('/admin/update_tables')
     
 # Update the admin page to include the data query
 @app.route("/admin/data_query", methods = ['POST'])
@@ -493,7 +678,8 @@ def admin_query():
     else:
         return render_template('admin.html', data_query_res = 'No query')
     
-# Update the admin page to include the data list query
+# Update the admin page to include the data list query, part of the admin homepage
+# Admins can make pre-specified queries to the database, as placed in the request_dict
 @app.route("/admin/data_list_query", methods = ['POST'])
 def admin_list_query():
     request_dict = {
@@ -606,7 +792,8 @@ def admin_list_query():
         db.commit()
         return render_template('admin.html', executed_list_query = query_name_dict[query], list_query_res = res_tuple, query_headers = headers_tuple)
 
-
+# Allows admins to see 2 tables at once, joined, part of the admin homepage
+# Does not work with 2 of the same table due to the use of natural join
 @app.route("/admin/join_tables", methods = ['POST'])
 def admin_join_tables():
     pri_key_dict = {
@@ -618,7 +805,6 @@ def admin_join_tables():
     }
     
     if request.method == 'POST':
-        
         db1 = request.form['db1']
         db2 = request.form['db2']
         num_display = request.form['num_display']
