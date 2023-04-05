@@ -270,7 +270,7 @@ def create_users_table():
         return Response(str(e), 403)
     
 # Landing/first page of the website
-@app.route("/")
+@app.route("/", methods = ['GET'])
 def landing_page():
     cookies = request.cookies.get('session_cookies')
     if get_user_cookies(cookies) != None:
@@ -279,7 +279,7 @@ def landing_page():
         return render_template('landing.html')
 
 # Home page of the website
-@app.route("/home")
+@app.route("/home", methods = ['POST'])
 def home():
     cookies = request.cookies.get('session_cookies')
     if get_user_cookies(cookies) != None:
@@ -362,6 +362,123 @@ def signup():
             return render_template('signup.html', error=error)
     else:
         return render_template('signup.html')
+    
+@app.route('/user_profile', methods = ['GET', 'POST'])
+def user_profile():
+    cookies = request.cookies.get('session_cookies')
+    if get_userid_cookies(cookies) != None:
+        user_id = get_userid_cookies(cookies)
+        user_query = f"SELECT * FROM users WHERE user_id = {user_id};"
+        prev_bookings_query = f"""SELECT b.booking_id, p.address, p.property_type, b.start_date, b.end_date, b.booking_date
+                                  FROM booking b
+                                  LEFT JOIN property p
+                                  ON b.property_id = p.property_id
+                                  WHERE b.student_id = {user_id}
+                                """
+        try:
+            user_res = db.execute(sqlalchemy.text(user_query))
+            booking_res = db.execute(sqlalchemy.text(prev_bookings_query))
+            user_tuple = user_res.fetchall()
+            booking_tuple = booking_res.fetchall()
+            password = user_tuple[0][1]
+            user_name = user_tuple[0][2]
+            email = user_tuple[0][3]
+            phone_number = user_tuple[0][4]
+            gender = user_tuple[0][5]
+            age = user_tuple[0][6]
+            db.commit()
+            return render_template('user_profile.html', bookings = booking_tuple,
+                                                        user_id = user_id,
+                                                        password = password,
+                                                        user_name = user_name,
+                                                        email = email,
+                                                        phone_number = phone_number,
+                                                        gender = gender,
+                                                        age = age)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    else:
+        return redirect("/login") 
+    
+@app.route('/user_profile/edit', methods = ['POST'])
+def edit_user_profile():
+    cookies = request.cookies.get('session_cookies')
+    if get_userid_cookies(cookies) != None:
+        user_id = get_userid_cookies(cookies)
+        field_to_edit = request.form['field']
+        updated_field = request.form['updated']
+        update_query = f"""UPDATE users
+                           SET {field_to_edit} = '{updated_field}'
+                           WHERE user_id = {user_id};"""
+        try:
+            db.execute(sqlalchemy.text(update_query))
+            db.commit()
+            return redirect('/user_profile')
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    else:
+        return redirect("/login")   
+    
+@app.route('/user_profile/review', methods = ['GET'])
+def view_reviews():
+    cookies = request.cookies.get('session_cookies')
+    if get_userid_cookies(cookies) != None:
+        user_id = get_userid_cookies(cookies)
+        prev_reviews_query = f"""SELECT r.review_date, p.address, p.property_type, r.rating, r.review
+                                  FROM review r
+                                  LEFT JOIN property p
+                                  ON r.property_id = p.property_id
+                                  WHERE r.reviewer_id = {user_id};
+                                """
+        address_query = f"""SELECT p.address
+                                  FROM booking b
+                                  LEFT JOIN property p
+                                  ON b.property_id = p.property_id
+                                  WHERE b.student_id = {user_id}
+                                  AND b.status = 'confirmed';
+                                """
+        try:
+            reviews_res = db.execute(sqlalchemy.text(prev_reviews_query))
+            address_res = db.execute(sqlalchemy.text(address_query))
+            reviews_tuple = reviews_res.fetchall()
+            address_tuple = tuple(map(lambda x: x[0], address_res.fetchall()))
+            db.commit()
+            return render_template('user_reviews.html', reviews = reviews_tuple, addresses = address_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    else:
+        return redirect("/login") 
+
+@app.route("/user_profile/review/submit_review", methods = ['POST'])
+def submit_review():
+        cookies = request.cookies.get('session_cookies')
+        if get_userid_cookies(cookies) != None:
+            user_id = get_userid_cookies(cookies)
+            latest_review_id = """SELECT MAX(review_id)
+                                FROM review;
+                                """
+            address = request.form['address']
+            rating = request.form['rating']
+            review = request.form['review']
+            property_id_query = f"SELECT property_id FROM property WHERE address = '{address}'"
+            try:
+                max_review_id = db.execute(sqlalchemy.text(latest_review_id))
+                property_id_res = db.execute(sqlalchemy.text(property_id_query))
+                max_review = max_review_id.fetchall()
+                property_id = property_id_res.fetchall()
+                next_review_id = max_review[0][0] + 1
+                insert_review = f"""INSERT INTO review (review_id, reviewer_id, property_id, rating, review)
+                                values ({next_review_id}, {user_id}, {property_id[0][0]}, {rating}, '{review}');"""
+                db.execute(sqlalchemy.text(insert_review))
+                db.commit()
+                return redirect('/user_profile/review')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+        return redirect('/login')
 
 # Function is used to insert the cookies into the database -> Allowing for synchronious sessions within the webpages
 
@@ -407,7 +524,18 @@ def get_user_cookies(cookies):
         return name
     else:
         return None
-
+    
+def get_userid_cookies(cookies):
+    find_user = f"SELECT user_id from users WHERE session_cookies = '{cookies}'"
+    statement = sqlalchemy.text(find_user)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    if len(res_tuple) > 0:
+        id = res_tuple[0][0]
+        return id
+    else:
+        return None
 # Takes user_id and password and creates a new user
 # Add fields for name, email, phone number, gender & age
 # Returns false if the user exists, and true if there's no existing user
