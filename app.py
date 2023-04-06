@@ -465,6 +465,7 @@ def view_reviews():
     else:
         return redirect("/login") 
 
+
 @app.route("/user_profile/review/submit_review", methods = ['POST'])
 def submit_review():
         cookies = request.cookies.get('session_cookies')
@@ -492,7 +493,95 @@ def submit_review():
                 db.rollback()
                 return Response(str(e), 403)
         return redirect('/login')
+    
+@app.route('/user_profile/properties', methods = ['GET'])
+def view_properties():
+    cookies = request.cookies.get('session_cookies')
+    if get_user_id(cookies) != None:
+        user_id = get_user_id(cookies)
+        properties_query = f"""SELECT p.property_id, p.start_date, p.end_date, p.address, p.property_type, p.num_rooms, p.availability, p.room_rate
+                                  FROM property p, users u
+                                  WHERE p.owner_id = u.user_id
+                                  AND u.user_id = {user_id};
+                                """
+        property_id_query = f"""SELECT p.property_id
+                                  FROM property p, users u
+                                  WHERE p.owner_id = u.user_id
+                                  AND u.user_id = {user_id};
+                                """
+        property_cols = f"""SELECT column_name
+                            FROM INFORMATION_SCHEMA.COLUMNS
+                            WHERE table_name = 'property'
+                            ORDER BY ordinal_position;
+                            """
+        try:
+            properties_res = db.execute(sqlalchemy.text(properties_query))
+            property_id_res = db.execute(sqlalchemy.text(property_id_query))
+            property_cols_res = db.execute(sqlalchemy.text(property_cols))
+            property_tuple = properties_res.fetchall()
+            property_cols_tuple = tuple(map(lambda x: x[0], property_cols_res.fetchall()))
+            property_id_tuple = tuple(map(lambda x: x[0], property_id_res.fetchall()))
+            db.commit()
+            return render_template('user_property.html', properties = property_tuple, property_ids = property_id_tuple, property_cols = property_cols_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    else:
+        return redirect("/login") 
+    
+@app.route("/user_profile/properties/edit_property", methods = ['POST'])
+def edit_properties():
+        string_fields_list = ['start_date', 'end_date', 'address', 'property_type', 'availability']
+        cookies = request.cookies.get('session_cookies')
+        if get_user_id(cookies) != None:
+            user_id = get_user_id(cookies)
+            
+            id_to_edit = request.form['edit_property']
+            field_to_update = request.form['field_to_update']
+            updated = request.form['updated']
+            if field_to_update in string_fields_list:
+                updated = f"'{updated}'"
+            try:
+                update_property = f"UPDATE property SET {field_to_update} = {updated} WHERE property_id = {id_to_edit}" 
+                db.execute(sqlalchemy.text(update_property))
+                db.commit()
+                return redirect('/user_profile/properties')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+        return redirect('/login')  
 
+@app.route("/user_profile/properties/list_property", methods = ['POST'])
+def list_properties():
+        cookies = request.cookies.get('session_cookies')
+        if get_user_id(cookies) != None:
+            user_id = get_user_id(cookies)
+            latest_property_id = """SELECT MAX(property_id)
+                                FROM property;
+                                """
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            address = request.form['address']
+            property_type = request.form['property_type']
+            num_rooms = request.form['num_rooms']
+            availability = request.form['availability']
+            room_rate = request.form['room_rate']
+        
+            try:
+                max_property_id = db.execute(sqlalchemy.text(latest_property_id))
+                max_review = max_property_id.fetchall()
+                next_property_id = max_review[0][0] + 1
+                insert_property = f"""INSERT INTO property (property_id, owner_id, start_date, 
+                                            end_date, address, property_type, num_rooms, availability, room_rate) 
+                                      VALUES ({next_property_id}, {user_id}, '{start_date}',
+                                            '{end_date}', '{address}', '{property_type}', {num_rooms}, '{availability}', {room_rate});"""
+                db.execute(sqlalchemy.text(insert_property))
+                db.commit()
+                return redirect('/user_profile/properties')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+        return redirect('/login')
 # Function is used to insert the cookies into the database -> Allowing for synchronious sessions within the webpages
 
 def update_cookies(user_id, cookies):
