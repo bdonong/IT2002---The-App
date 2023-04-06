@@ -286,7 +286,7 @@ def landing_page():
         return render_template('landing.html')
 
 # Home page of the website
-@app.route("/home", methods = ['POST'])
+@app.route('/home', methods = ['GET', 'POST'])
 def home():
     cookies = request.cookies.get('session_cookies')
     if get_user_cookies(cookies) != None:
@@ -380,7 +380,7 @@ def signup():
 def user_profile():
     cookies = request.cookies.get('session_cookies')
     if get_user_id(cookies) != None:
-        user_id = get_userid_cookies(cookies)
+        user_id = get_user_id(cookies)
         user_query = f"SELECT * FROM users WHERE user_id = {user_id};"
         prev_bookings_query = f"""SELECT b.booking_id, p.address, p.property_type, b.start_date, b.end_date, b.booking_date
                                   FROM booking b
@@ -418,7 +418,7 @@ def user_profile():
 def edit_user_profile():
     cookies = request.cookies.get('session_cookies')
     if get_user_id(cookies) != None:
-        user_id = get_userid_cookies(cookies)
+        user_id = get_user_id(cookies)
         field_to_edit = request.form['field']
         updated_field = request.form['updated']
         update_query = f"""UPDATE users
@@ -438,7 +438,7 @@ def edit_user_profile():
 def view_reviews():
     cookies = request.cookies.get('session_cookies')
     if get_user_id(cookies) != None:
-        user_id = get_userid_cookies(cookies)
+        user_id = get_user_id(cookies)
         prev_reviews_query = f"""SELECT r.review_date, p.address, p.property_type, r.rating, r.review
                                   FROM review r
                                   LEFT JOIN property p
@@ -468,7 +468,7 @@ def view_reviews():
 @app.route("/user_profile/review/submit_review", methods = ['POST'])
 def submit_review():
         cookies = request.cookies.get('session_cookies')
-        if get_userid_cookies(cookies) != None:
+        if get_user_id(cookies) != None:
             user_id = get_user_id(cookies)
             latest_review_id = """SELECT MAX(review_id)
                                 FROM review;
