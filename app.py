@@ -738,17 +738,16 @@ def validbookingtime(property_id, start_time, end_time):
         res_1.append(time.mktime(time1[1].timetuple()))
         res_2.append(res_1)
         res_1 = []
-    unixstartTime = time.mktime(datetime.datetime.strptime(start_time, "%Y-%M-%d").timetuple())
-    unixendTime = time.mktime(datetime.datetime.strptime(end_time, "%Y-%M-%d").timetuple())
+    unixstartTime = time.mktime(datetime.datetime.strptime(start_time, "%Y-%m-%d").timetuple())
+    unixendTime = time.mktime(datetime.datetime.strptime(end_time, "%Y-%m-%d").timetuple())
+    print(unixstartTime)
+    print(unixendTime)
+    print(res_2)
     ## Iterate through the entire list to ensure that there are no instances where the start time and/or the end time is between the two values
     for time_list in res_2:
-        if time_list[0] <= unixstartTime <= time_list[1]:
-            print(time_list[0])
-            print(unixstartTime)
+        if time_list[1] <= unixstartTime <= time_list[0]:
             return False
-        if time_list[0] <= unixendTime <= time_list[1]:
-            print(time_list[0])
-            print(unixendTime)
+        if time_list[1] <= unixendTime <= time_list[0]:
             return False
     return True
     
