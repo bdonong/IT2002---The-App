@@ -402,7 +402,6 @@ def user_profile():
             booking_res = db.execute(sqlalchemy.text(prev_bookings_query))
             user_tuple = user_res.fetchall()
             booking_tuple = booking_res.fetchall()
-            password = user_tuple[0][1]
             user_name = user_tuple[0][2]
             email = user_tuple[0][3]
             phone_number = user_tuple[0][4]
@@ -411,7 +410,6 @@ def user_profile():
             db.commit()
             return render_template('user_profile.html', bookings = booking_tuple,
                                                         user_id = user_id,
-                                                        password = password,
                                                         user_name = user_name,
                                                         email = email,
                                                         phone_number = phone_number,
@@ -696,15 +694,19 @@ def book():
             ## Book the property, validity check done in browser
             bookingID = bookingproperty(property_id, user_id, start_time, end_time)
             bookingdetails = getbooking(bookingID)
+            ## Variables that are displayed in the bookingdetails
+            bookingid = bookingdetails[0][0]
+            property_id = bookingdetails[0][1]
+            start_date = bookingdetails[0][3].strftime("%d/%m/%Y")
+            end_date = bookingdetails[0][4].strftime("%d/%m/%Y")
             if bookingdetails != None:
-
-                return render_template('confirmation.html', preferredlisting = bookingdetails)
+                return render_template('confirmation.html', booking_id = bookingid, property_id = property_id, start_date = start_date, end_date = end_date)
     return redirect(url_for("home")) 
 
 
 
 def bookingproperty(property_id, user_id, start_time, end_time):
-    bookingID = random.randrange(0,2**7)
+    bookingID = random.randrange(0,999999)
     booking_date = datetime.date.today()
     book_property = f"INSERT INTO booking VALUES ({bookingID}, {property_id}, {user_id}, '{start_time}', '{end_time}', '{booking_date}', 'processing')"
     statement = sqlalchemy.text(book_property)
@@ -719,8 +721,6 @@ def getbooking(bookingID):
     db.commit()
     res_tuple = res.fetchall()
     return res_tuple
-
-
 
 
     

@@ -12,17 +12,15 @@
 	</header>
 	<main>
 		<section>
-			{% for booking in bookings %}
 			<div class='booking'>
 			<h2>Thank you for your booking!</h2>
-			<p>Your booking reference number is: <strong>{{ booking['booking_id']}}</strong></p>
+			<p>Your booking reference number is: <strong>{{ booking_id }}</strong></p>
 			<p>You have booked a room at:</p>
 			<ul>
-				<li>Property Name: {{booking['property_id']}}</li>
-				<li>Check-in Date: <strong>{{booking['start_date']}}</strong></li>
-				<li>Check-out Date: <strong>{{booking['end_date']}}</strong></li>
+				<li>Property Name: {{ property_id }}</li>
+				<li>Check-in Date: <strong>{{ start_date }}</strong></li>
+				<li>Check-out Date: <strong>{{ end_date }}</strong></li>
 			</ul>
-			{% endfor %}
 			<p>You will receive a confirmation email shortly with additional details.</p>
 			<a href="index.html" class="button">Back to Home</a>
 		</section>
