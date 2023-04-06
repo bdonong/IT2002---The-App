@@ -690,7 +690,7 @@ def book():
         # Find user id
         user_id = get_user_id(cookies)
         # Check for valid cookies and valid property
-        if user_id != None:
+        if user_id != None and validbookingtime(property_id, start_time, end_time) == True:
             ## Book the property, validity check done in browser
             bookingID = bookingproperty(property_id, user_id, start_time, end_time)
             bookingdetails = getbooking(bookingID)
@@ -712,6 +712,7 @@ def bookingproperty(property_id, user_id, start_time, end_time):
     statement = sqlalchemy.text(book_property)
     res = db.execute(statement)
     db.commit()
+    validbookingtime(property_id, start_time, end_time)
     return bookingID
 
 def getbooking(bookingID):
@@ -722,7 +723,34 @@ def getbooking(bookingID):
     res_tuple = res.fetchall()
     return res_tuple
 
-
+## Grab the unix timing of all of the booking, check which ones will conflict with the selected start_time
+def validbookingtime(property_id, start_time, end_time):
+    ## Initialize temp lists
+    res_1 = []
+    res_2 = []
+    findtimings = f"SELECT start_date, end_date FROM booking WHERE property_id = {property_id}"
+    statement = sqlalchemy.text(findtimings)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    for time1 in res_tuple:
+        res_1.append(time.mktime(time1[0].timetuple()))
+        res_1.append(time.mktime(time1[1].timetuple()))
+        res_2.append(res_1)
+        res_1 = []
+    unixstartTime = time.mktime(datetime.datetime.strptime(start_time, "%Y-%M-%d").timetuple())
+    unixendTime = time.mktime(datetime.datetime.strptime(end_time, "%Y-%M-%d").timetuple())
+    ## Iterate through the entire list to ensure that there are no instances where the start time and/or the end time is between the two values
+    for time_list in res_2:
+        if time_list[0] <= unixstartTime <= time_list[1]:
+            print(time_list[0])
+            print(unixstartTime)
+            return False
+        if time_list[0] <= unixendTime <= time_list[1]:
+            print(time_list[0])
+            print(unixendTime)
+            return False
+    return True
     
 # Routing to the home admin page
 @app.route('/admin/home')

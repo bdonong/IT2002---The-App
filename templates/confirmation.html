@@ -4,7 +4,76 @@
 	<title>Booking Confirmation</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="styles.css">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #F5F5F5;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+		header {
+			background-color: #FFFFFF;
+			width: 100%;
+			padding: 20px 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		h1 {
+			color: #005EA7;
+		}
+		main {
+			text-align: center;
+			margin: 20px 0;
+		}
+		section {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: 20px;
+		}
+		.booking {
+			background-color: #FFFFFF;
+			padding: 20px;
+			border: 1px solid #CCCCCC;
+			border-radius: 5px;
+			width: 400px;
+		}
+		h2 {
+			color: #005EA7;
+		}
+		ul {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+			text-align: left;
+		}
+		li {
+			margin: 10px 0;
+		}
+		.button {
+			background-color: #005EA7;
+			border: none;
+			color: #FFFFFF;
+			padding: 12px 20px;
+			cursor: pointer;
+			border-radius: 5px;
+			margin-top: 10px;
+		}
+		.button:hover {
+			background-color: #004C95;
+		}
+		footer {
+			background-color: #FFFFFF;
+			width: 100%;
+			padding: 20px 0;
+			text-align: center;
+			border-top: 1px solid #CCCCCC;
+		}
+	</style>
 </head>
 <body>
 	<header>
@@ -22,7 +91,7 @@
 				<li>Check-out Date: <strong>{{ end_date }}</strong></li>
 			</ul>
 			<p>You will receive a confirmation email shortly with additional details.</p>
-			<a href="index.html" class="button">Back to Home</a>
+			<a href="home" class="button">Back to Home</a>
 		</section>
 	</main>
 	
