@@ -79,9 +79,10 @@
     </header>
     
     <main>
+
         <form action="/signup" method="POST">
             <label for="user_id">User ID</label><br>
-            <input type="number" id="user_id" name="user_id" required><br><br>
+            <input type="number" value = "{{ user_id }}" readonly>
     
             <label for="password">Password</label><br>
             <input type="password" id="password" name="password" required><br><br>

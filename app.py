@@ -297,7 +297,7 @@ def home():
         res_tuple = res.fetchall()
         return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
-        return redirect(url_for(''))
+        return redirect(url_for('login'))
 
 # Create a route for the login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -344,7 +344,13 @@ def logout():
 def signup():
     if request.method == 'POST':
         # Call the sign_up function and pass user_id and password
-        user_id = request.form['user_id']
+        ## Get current max userID, select that as the userID for the current user
+        user_id_statement = "SELECT MAX(user_id) from users"
+        statement = sqlalchemy.text(user_id_statement)
+        res = db.execute(statement)
+        db.commit()
+        res_tuple = res.fetchall()
+        user_id = res_tuple[0][0] + 1
         password = request.form['password']
         name = request.form['name']
         email = request.form['email']
@@ -359,7 +365,7 @@ def signup():
                 user_cookies = secret_key + str(user_id) + str(time.time())
                 hashedcookies = sha256(user_cookies.encode('utf-8')).hexdigest()
                 update_cookies(user_id, hashedcookies)
-                insert_command = f"INSERT INTO users VALUES ({user_id}, '{passwordhash}', '{hashedcookies}', '{name}', '{email}', '{phone}', '{gender}', {age});"
+                insert_command = f"INSERT INTO users VALUES ({user_id}, '{passwordhash}', '{name}', '{email}', '{phone}', '{gender}', {age}, '{hashedcookies}');"
                 statement = sqlalchemy.text(insert_command)
                 db.execute(statement)
                 db.commit()
@@ -369,12 +375,15 @@ def signup():
             except Exception as e:
                 db.rollback()
                 return Response(str(e),403)
-        else:
-            # Show an error message if signup fails
-            error = 'User ID already exists. Please choose a different one.'
-            return render_template('signup.html', error=error)
-    else:
-        return render_template('signup.html')
+    if request.method == 'GET':
+        user_id_statement = "SELECT MAX(user_id) from users"
+        statement = sqlalchemy.text(user_id_statement)
+        res = db.execute(statement)
+        db.commit()
+        res_tuple = res.fetchall()
+        user_id = res_tuple[0][0] + 1
+        print(user_id)
+        return render_template('signup.html', user_id = user_id)
     
 @app.route('/user_profile', methods = ['GET', 'POST'])
 def user_profile():
@@ -465,6 +474,7 @@ def view_reviews():
     else:
         return redirect("/login") 
 
+
 @app.route("/user_profile/review/submit_review", methods = ['POST'])
 def submit_review():
         cookies = request.cookies.get('session_cookies')
@@ -492,7 +502,95 @@ def submit_review():
                 db.rollback()
                 return Response(str(e), 403)
         return redirect('/login')
+    
+@app.route('/user_profile/properties', methods = ['GET'])
+def view_properties():
+    cookies = request.cookies.get('session_cookies')
+    if get_user_id(cookies) != None:
+        user_id = get_user_id(cookies)
+        properties_query = f"""SELECT p.property_id, p.start_date, p.end_date, p.address, p.property_type, p.num_rooms, p.availability, p.room_rate
+                                  FROM property p, users u
+                                  WHERE p.owner_id = u.user_id
+                                  AND u.user_id = {user_id};
+                                """
+        property_id_query = f"""SELECT p.property_id
+                                  FROM property p, users u
+                                  WHERE p.owner_id = u.user_id
+                                  AND u.user_id = {user_id};
+                                """
+        property_cols = f"""SELECT column_name
+                            FROM INFORMATION_SCHEMA.COLUMNS
+                            WHERE table_name = 'property'
+                            ORDER BY ordinal_position;
+                            """
+        try:
+            properties_res = db.execute(sqlalchemy.text(properties_query))
+            property_id_res = db.execute(sqlalchemy.text(property_id_query))
+            property_cols_res = db.execute(sqlalchemy.text(property_cols))
+            property_tuple = properties_res.fetchall()
+            property_cols_tuple = tuple(map(lambda x: x[0], property_cols_res.fetchall()))
+            property_id_tuple = tuple(map(lambda x: x[0], property_id_res.fetchall()))
+            db.commit()
+            return render_template('user_property.html', properties = property_tuple, property_ids = property_id_tuple, property_cols = property_cols_tuple)
+        except Exception as e:
+            db.rollback()
+            return Response(str(e), 403)
+    else:
+        return redirect("/login") 
+    
+@app.route("/user_profile/properties/edit_property", methods = ['POST'])
+def edit_properties():
+        string_fields_list = ['start_date', 'end_date', 'address', 'property_type', 'availability']
+        cookies = request.cookies.get('session_cookies')
+        if get_user_id(cookies) != None:
+            user_id = get_user_id(cookies)
+            
+            id_to_edit = request.form['edit_property']
+            field_to_update = request.form['field_to_update']
+            updated = request.form['updated']
+            if field_to_update in string_fields_list:
+                updated = f"'{updated}'"
+            try:
+                update_property = f"UPDATE property SET {field_to_update} = {updated} WHERE property_id = {id_to_edit}" 
+                db.execute(sqlalchemy.text(update_property))
+                db.commit()
+                return redirect('/user_profile/properties')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+        return redirect('/login')  
 
+@app.route("/user_profile/properties/list_property", methods = ['POST'])
+def list_properties():
+        cookies = request.cookies.get('session_cookies')
+        if get_user_id(cookies) != None:
+            user_id = get_user_id(cookies)
+            latest_property_id = """SELECT MAX(property_id)
+                                FROM property;
+                                """
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            address = request.form['address']
+            property_type = request.form['property_type']
+            num_rooms = request.form['num_rooms']
+            availability = request.form['availability']
+            room_rate = request.form['room_rate']
+        
+            try:
+                max_property_id = db.execute(sqlalchemy.text(latest_property_id))
+                max_review = max_property_id.fetchall()
+                next_property_id = max_review[0][0] + 1
+                insert_property = f"""INSERT INTO property (property_id, owner_id, start_date, 
+                                            end_date, address, property_type, num_rooms, availability, room_rate) 
+                                      VALUES ({next_property_id}, {user_id}, '{start_date}',
+                                            '{end_date}', '{address}', '{property_type}', {num_rooms}, '{availability}', {room_rate});"""
+                db.execute(sqlalchemy.text(insert_property))
+                db.commit()
+                return redirect('/user_profile/properties')
+            except Exception as e:
+                db.rollback()
+                return Response(str(e), 403)
+        return redirect('/login')
 # Function is used to insert the cookies into the database -> Allowing for synchronious sessions within the webpages
 
 def update_cookies(user_id, cookies):
@@ -599,6 +697,7 @@ def book():
             bookingID = bookingproperty(property_id, user_id, start_time, end_time)
             bookingdetails = getbooking(bookingID)
             if bookingdetails != None:
+
                 return render_template('confirmation.html', preferredlisting = bookingdetails)
     return redirect(url_for("home")) 
 
@@ -619,7 +718,6 @@ def getbooking(bookingID):
     res = db.execute(statement)
     db.commit()
     res_tuple = res.fetchall()
-    print(res_tuple)
     return res_tuple
 
 
@@ -1077,7 +1175,7 @@ def property_booking_check(property_id):
 def create_app():
    return app
 # ? The port where the debuggable DB management API is served
-PORT = 80
+PORT = 5555
 # ? Running the flask app on the localhost/0.0.0.0, port 2222
 # ? Note that you may change the port, then update it in the view application too to make it work (don't if you don't have another application occupying it)
 if __name__ == "__main__":
