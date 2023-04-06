@@ -745,9 +745,9 @@ def validbookingtime(property_id, start_time, end_time):
     print(res_2)
     ## Iterate through the entire list to ensure that there are no instances where the start time and/or the end time is between the two values
     for time_list in res_2:
-        if time_list[1] <= unixstartTime <= time_list[0]:
+        if time_list[0] <= unixstartTime <= time_list[1]:
             return False
-        if time_list[1] <= unixendTime <= time_list[0]:
+        if time_list[0] <= unixendTime <= time_list[1]:
             return False
     return True
     
@@ -1172,30 +1172,30 @@ def admin_join_tables():
             return Response(str(e),403)
 
 # Creates the booking after the property is confirmed to be available, using the website cookie
-def bookslot(session_token, property_id):
-    if session_token in session:
-        for key, value in session.iteritems():
-            if value == session_token:
-                user_id = key
-    property_booking = f'INSERT INTO BOOKING VALUES ({booking_id},{property_id},{user_id}, {start_date}, {end_date}, {today}, confirmed)'
-    res = db.execute(sqlalchemy.text(property_booking))
-    return res
+# def bookslot(session_token, property_id):
+#     if session_token in session:
+#         for key, value in session.iteritems():
+#             if value == session_token:
+#                 user_id = key
+#     property_booking = f'INSERT INTO BOOKING VALUES ({booking_id},{property_id},{user_id}, {start_date}, {end_date}, {today}, confirmed)'
+#     res = db.execute(sqlalchemy.text(property_booking))
+#     return res
 
 # Checks if the property is available, by checking if the availability in the database == 'yes'
-def property_booking_check(property_id):
-    property_check = f'SELECT availibility FROM property WHERE property_id = {property_id}'
-    try:
-        res = db.execute(sqlalchemy.text(property_check))
-        res_tuple = res.fetchall()
-        db.commit()
-        availability = res_tuple[0][0]
-        if(availability == 'yes'): # just checks the availability in property for now, in the future, check the bookings table for start/end date availability as well
-            return True
-        else:
-            return False
-    except Exception as e:
-                db.rollback()
-                return Response(str(e),403)
+# def property_booking_check(property_id):
+#     property_check = f'SELECT availibility FROM property WHERE property_id = {property_id}'
+#     try:
+#         res = db.execute(sqlalchemy.text(property_check))
+#         res_tuple = res.fetchall()
+#         db.commit()
+#         availability = res_tuple[0][0]
+#         if(availability == 'yes'): # just checks the availability in property for now, in the future, check the bookings table for start/end date availability as well
+#             return True
+#         else:
+#             return False
+#     except Exception as e:
+#                 db.rollback()
+#                 return Response(str(e),403)
         
     #return app
 # ? This method can be used by waitress-serve CLI 
