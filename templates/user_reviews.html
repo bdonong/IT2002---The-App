@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUSrentals- Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        header {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+        }
+
+        main {
+            width: 80%;
+            margin: 2rem;
+        }
+
+        form {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input, select {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            font-size: 1rem;
+            padding: 5px 10px;
+            background-color: #ff7f50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ff6347;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1e90ff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            color: #ff7f50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Reviews</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Previous Reviews</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Review Date</th>
+                        <th>Property Address</th>
+                        <th>Property Type</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        {% for field in review %}
+                        <td>{{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Add a review</h2>
+            
+            <form action="/user_profile/review/submit_review" method="POST" >
+                <h2><label for="address">Address to review</label></h2>
+                    <select id="address" name="address" required>                    
+                        {% for address in addresses %}
+                            <option value="{{ address }}">{{ address }}</option>
+                        {% endfor %}
+                    </select><br>
+                <label for="rating">Rating (out of 10):</label><br>
+                <input type="number" id="rating" name="rating" required>
+                <label for="review">Review:</label><br>
+                <input type="text" id="review" name="review" required><br><br>
+                <input type="submit" value="Submit Review">
+            </form>  
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+</body>
+</html>

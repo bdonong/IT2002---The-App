@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUSrentals- User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        header {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+        }
+
+        main {
+            width: 80%;
+            margin: 2rem;
+        }
+
+        form {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input, select {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            font-size: 1rem;
+            padding: 5px 10px;
+            background-color: #ff7f50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ff6347;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1e90ff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            color: #ff7f50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>User Profile</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Personal Information</h2>
+            <p>User ID: {{ user_id }}</p>
+            <p>Password: {{ password }}</p>
+            <p>User Name: {{ user_name }}</p>
+            <p>Email: {{ email }}</p>
+            <p>Phone Number: {{ phone_number }}</p>
+            <p>Gender: {{ gender }}</p>
+            <p>Age: {{ age }}</p>
+        </section>
+
+        <section>
+            <h2>Edit User Profile</h2>
+            <form action="/user_profile/edit" method="POST" >
+                <h2><label for="field">Item to edit</label></h2>
+                    <select id="field" name="field" required>
+                        <option value="password" selected>password</option>
+                        <option value="user_name">user_name</option>
+                        <option value="email">email</option>
+                        <option value="phone_number">phone number</option>
+                    </select><br>
+                <label for="updated">Updated Field:</label><br>
+                <input type="text" id="updated" name="updated" required><br><br>
+                <input type="submit" value="Edit">
+            </form>  
+        </section>
+        <section>
+            <h2>Previous Bookings</h2>
+            <a href="/user_profile/review">Leave a review!</a><br><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Property Address</th>
+                        <th>Property Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Booking Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        {% for field in booking %}
+                        <td>{{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+</body>
+</html>

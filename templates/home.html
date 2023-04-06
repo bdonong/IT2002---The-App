@@ -164,9 +164,24 @@
             }
         }
     </script>
-
     <body>
 <h2>Featured Listings</h2>
+=======
+    <header>
+        <h1>NUSrentals - Housing Types</h1>
+        <h1>Welcome, {{userID}}</h1>
+    </header>
+    <div style = "position:relative; left:800px; top:2px; background-color:white;">
+<form action="/logout" method="post">
+    <button name="logout" value="logout">Logout</button>
+    </div>
+</form>
+<div style = "position:relative; left:100px; top:px; background-color:white;">
+<form action="/user_profile" method="post">
+    <button name="profile" value="profile">Profile</button>
+    </div>
+</form>
+    <main>
         <section>
             {% for listing in preferredlisting %}
             <div class='listing'>
@@ -182,6 +197,35 @@
             {% endfor %}
         </section>
     </body>
+    </main>
+    </header>
+    <main>
+        <h2>Featured Listings</h2>
+        <section>
+            <article>
+                <h3>Listing 1</h3>
+                <img src="html_images/pgp-house-blocks.png" alt="Listing 1">
+                <p>Furnished Apartments</p> 
+                <button onclick="bookApartment()">Book</button>"
+
+            </article>
+
+            <article>
+                <h3>Listing 2</h3>
+                <img src="html_images/2017-residential-college-4-6_1.png" alt="Listing 2">
+                <p>Communal living spaces</p> 
+                <button button onclick="location.href='/book'"> Book </button>
+            </article>
+
+            <article>
+                <h3>Listing 3</h3>
+                <img src="html_images/2017-eusoff-hall-2_2.png" alt="Listing 3">
+                <p>Shared accomodations</p> 
+                <button button onclick="location.href='/book'"> Book </button>
+            </article>
+
+        </section>
+    </main>
     <footer>
         <p>&copy; 2023 NUSrentals. All rights reserved.</p>
     </footer>
