@@ -6,22 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NUSrentals - Landing Page</title>
     <style>
-        .dropbtn {
-            background-color: #3498DB;
-            color: white;
-            padding: 16px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            left: 200px;
-
-        }
-
-        .dropbtn:hover,
-        .dropbtn:focus {
-            background-color: #2980B9;
-        }
 
         .dropdown {
             position: relative;
@@ -30,7 +14,7 @@
 
         .dropdown-content {
             display: none;
-            position: absolute;
+            position: relative;
             background-color: #f1f1f1;
             min-width: 160px;
             overflow: auto;
@@ -51,6 +35,54 @@
 
         .show {
             display: block;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dropbtn, .profile-btn {
+            background-color: #3498DB;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .dropbtn:hover, .profile-btn:hover,
+        .dropbtn:focus, .profile-btn:focus {
+            background-color: #2980B9;
         }
 
         body {
@@ -134,15 +166,19 @@
     <header>
         <h1>NUSrentals - Rental portal</h1>
     </header>
-    <h2 align="left">Welcome, {{userID}}</h2>
-    <div class="dropdown">
-        <button onclick="myFunction()" class="dropbtn">Menu</button>
-        <div id="myDropdown" class="dropdown-content">
-            <a href="/home">Home</a>
-            <a href="/profile">Profile</a>
-            <a href="/logout">Logout</a>
+    <h2 text-align="centre">Welcome, {{userID}}</h2>
+    <div class="button-container">
+        <a href="/user_profile" class="profile-btn">Profile</a>
+        <div class="dropdown">
+            <button onclick="myFunction()" class="dropbtn">Menu</button>
+            <div id="myDropdown" class="dropdown-content">
+                <a href="/home">Home</a>
+                <a href="/user_profile">Profile</a>
+                <a href="/logout">Logout</a>
+            </div>
         </div>
     </div>
+
     <script>
         /* When the user clicks on the button, 
         toggle between hiding and showing the dropdown content */
@@ -169,17 +205,7 @@
 =======
     <header>
         <h1>NUSrentals - Housing Types</h1>
-        <h1>Welcome, {{userID}}</h1>
     </header>
-    <div style = "position:relative; left:800px; top:2px; background-color:white;">
-<form action="/logout" method="post">
-    <button name="logout" value="logout">Logout</button>
-    </div>
-</form>
-<div style = "position:relative; left:100px; top:px; background-color:white;">
-<form action="/user_profile" method="post">
-    <button name="profile" value="profile">Profile</button>
-    </div>
 </form>
     <main>
         <section>

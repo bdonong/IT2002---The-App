@@ -297,7 +297,7 @@ def home():
         res_tuple = res.fetchall()
         return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
-        return redirect(url_for(''))
+        return redirect(url_for('login'))
 
 # Create a route for the login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -1166,7 +1166,7 @@ def property_booking_check(property_id):
 def create_app():
    return app
 # ? The port where the debuggable DB management API is served
-PORT = 80
+PORT = 5555
 # ? Running the flask app on the localhost/0.0.0.0, port 2222
 # ? Note that you may change the port, then update it in the view application too to make it work (don't if you don't have another application occupying it)
 if __name__ == "__main__":
