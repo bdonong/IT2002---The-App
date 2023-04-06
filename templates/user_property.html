@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUSrentals- Properties</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        header {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+        }
+
+        main {
+            width: 80%;
+            margin: 2rem;
+        }
+
+        form {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input, select {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            font-size: 1rem;
+            padding: 5px 10px;
+            background-color: #ff7f50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ff6347;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1e90ff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            color: #ff7f50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #1e90ff;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>User Properties</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Owned Properties</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Property id</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Property Address</th>
+                        <th>Property Type</th>
+                        <th>Number of rooms</th>
+                        <th>Availability</th>
+                        <th>Room Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for property in properties %}
+                    <tr>
+                        {% for field in property%}
+                        <td>{{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Edit Properties</h2>
+            <form action="/user_profile/properties/edit_property" method="POST" >
+                <h2><label for="edit_property">Property to edit</label></h2>
+                    <select id="edit_property" name="edit_property" required>                    
+                        {% for id in property_ids %}
+                            <option value="{{ id }}">{{ id }}</option>
+                        {% endfor %}
+                    </select><br>
+                <label for="field_to_update">Field to update</label>
+                    <select id="field_to_update" name="field_to_update" required>
+                        {% for cols in property_cols %}
+                            <option value="{{ cols }}">{{ cols }}</option>
+                        {% endfor %}s
+                    </select>
+                <label for="review">Updated field</label><br>
+                <input type="text" id="updated" name="updated" required><br><br>
+                <input type="submit" value="Edit">
+            </form>  
+        </section><br>
+        <section>
+            <h2>List Properties</h2>
+            <form action="/user_profile/properties/list_property" method="POST" >
+                <label for="start_date">Start Date</label><br>
+                <input type="date" id="start_date" name="start_date" required><br>
+                <label for="end_date">End Date</label><br>
+                <input type="date" id="end_date" name="end_date" required><br>
+                <label for="address">Address</label><br>
+                <input type="text" id="address" name="address" required><br>
+                <label for="property_type">Property Type</label><br>
+                <input type="text" id="property_type" name="property_type" required><br>
+                <label for="num_rooms">Number of rooms</label><br>
+                <input type="number" id="num_rooms" name="num_rooms" required><br>
+                <label for="availability">Start Date</label><br>
+                    <select id="availability" name="availability" required>
+                        <option value="yes">Available</option>
+                        <option value="no">Not Available</option> 
+                    </select><br>
+                <label for="room_rate">Room Rate ($SGD/month)</label><br>
+                <input type="number" id="room_rate" name="room_rate" required><br>
+
+                <input type="submit" value="List Property">
+            </form>  
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+</body>
+</html>
