@@ -10,18 +10,19 @@
 	<header>
 		<h1>Booking Confirmation</h1>
 	</header>
-	
 	<main>
 		<section>
+			{% for booking in bookings %}
+			<div class='booking'>
 			<h2>Thank you for your booking!</h2>
-			<p>Your booking reference number is: <strong>123456789</strong></p>
+			<p>Your booking reference number is: <strong>{{ booking['booking_id']}}</strong></p>
 			<p>You have booked a room at:</p>
 			<ul>
-				<li>Property Name: <strong>123 Main Street</strong></li>
-				<li>Check-in Date: <strong>April 1, 2023</strong></li>
-				<li>Check-out Date: <strong>April 5, 2023</strong></li>
-				<li>Room Rate: <strong>$100 per night</strong></li>
+				<li>Property Name: {{booking['property_id']}}</li>
+				<li>Check-in Date: <strong>{{booking['start_date']}}</strong></li>
+				<li>Check-out Date: <strong>{{booking['end_date']}}</strong></li>
 			</ul>
+			{% endfor %}
 			<p>You will receive a confirmation email shortly with additional details.</p>
 			<a href="index.html" class="button">Back to Home</a>
 		</section>

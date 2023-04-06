@@ -1,17 +1,10 @@
-/*******************
 
-  Create the schema
-
-********************/
-
-/*
 DROP TABLE administrator;
 DROP TABLE review;
 DROP TABLE transaction;
 DROP TABLE booking;
 DROP TABLE property;
 DROP TABLE users;
-*/
 
 CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER PRIMARY KEY,
@@ -27,11 +20,14 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS property (
   property_id INTEGER PRIMARY KEY,
   owner_id INTEGER REFERENCES users(user_id),
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
   address VARCHAR(255) NOT NULL,
   property_type VARCHAR(255) NOT NULL,
   num_rooms INTEGER NOT NULL,
   availability VARCHAR(3) CHECK(availability = 'yes' OR availability = 'no'),
-  room_rate INTEGER NOT NULL
+  room_rate INTEGER NOT NULL,
+  CHECK (end_date > start_date)
 );
 
 CREATE TABLE IF NOT EXISTS review (
@@ -50,7 +46,8 @@ CREATE TABLE IF NOT EXISTS booking (
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   booking_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  status VARCHAR(16) CHECK(status = 'processing' OR status = 'confirmed')
+  status VARCHAR(16) CHECK(status = 'processing' OR status = 'confirmed'),
+  CHECK (end_date > start_date)
 );
 
 CREATE TABLE IF NOT EXISTS transaction (

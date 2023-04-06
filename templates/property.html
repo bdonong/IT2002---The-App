@@ -1,47 +1,208 @@
-<div class="property-list">
-    <h2>Properties</h2>
-    <ul>
-      <li>
-        <div class="property-details">
-          <h3>Property 1</h3>
-          <p>Address: 123 Main Street</p>
-          <p>Type: Apartment</p>
-          <p>Number of Rooms: 2</p>
-          <p>Availability: Yes</p>
-          <p>Room Rate: $100 per night</p>
-        </div>
-        <div class="book-button">
-          <button>Book</button>
-        </div>
-      </li>
-      <li>
-        <div class="property-details">
-          <h3>Property 2</h3>
-          <p>Address: 456 Oak Avenue</p>
-          <p>Type: House</p>
-          <p>Number of Rooms: 3</p>
-          <p>Availability: No</p>
-          <p>Room Rate: $150 per night</p>
-        </div>
-        <div class="book-button">
-          <button>Book</button>
-        </div>
-      </li>
-      <!-- Add more properties as needed -->
-      <div class="property-list">
-  <h2>Properties</h2>
-  <ul>
-    {% for property in properties %}
-    <li>
-      <div class="property">
-        <h3>{{ property.name }}</h3>
-        <p>{{ property.description }}</p>
-        <button class="book-button">Book</button>
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUSrentals - Property Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5F5F5;
+        }
+        header {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        nav {
+            margin-left: 30px;
+        }
+        button {
+            background-color: #005EA7;
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #004C95;
+        }
+        h1, h2 {
+            color: #005EA7;
+        }
+        main {
+            text-align: center;
+            margin: 20px 0;
+        }
+        section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        article {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            width: 300px;
+        }
+        img {
+            width: 100%;
+            height: auto;
+        }
+        footer {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #CCCCCC;
+        }
+        /* Additional styling for the property details page */
+        .property-details {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+        }
+        .property-details h2 {
+            font-size: 24px;
+            margin-top: 0;
+        }
+        .property-details h3 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+        .property-details img {
+            margin-top: 20px;
+        }
+        .property-details p {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>NUSrentals</h1>
+        <nav>
+<div class="dropdown">
+  <button onclick="myFunction()" class="dropbtn">Menu</button>
+  <div id="myDropdown" class="dropdown-content">
+    <a href="/home">Home</a>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+  </div>
 </div>
 
-    </ul>
-  </div>
+<script>
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+</script>
+
+        </nav>
+    </header>
+    <main>
+        {% for property in currlisting %}
+        <div class="property">
+            <h2>Apartment for Rent</h2>
+            <img src="html_images/1.png" alt="Apartment">
+            <h3>Location</h3>
+            <p>{{ property['address'] }}</p>
+            <h3>Cost</h3>
+            <p>{{ property['room_rate'] }}</p>
+            </div>
+            <script>
+              function validateTimestamp(){
+                var dateForm  = document.forms['booking'];
+                var startTime = new Date(booking["date1"].value);
+                var endTime = new Date(booking["date2"].value);
+                if (startTime >= endTime){
+                  alert("Start date cannot be later than end date")
+                  return false;
+                }
+                else{
+                  return true
+                }
+              }
+              </script>
+            <form name ="booking" action="/book" onsubmit ="return validateTimestamp();" method="post">
+              <p>Start Time:</p>
+              <input type="date" id="date1" name ="startdate">
+              <p>End Time:</p>
+              <input type="date" id="date2" name ="enddate">
+              <input type="hidden" name="property_id" value={{property['property_id']}}>
+              <input type="submit" value="Book">
+          </form>
+            {% endfor %}
+    </body>
+    <footer>
+        <p>&copy; 2023 NUSrentals. All rights reserved.</p>
+    </footer>
+
+</html>

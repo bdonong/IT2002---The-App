@@ -1,28 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NUSrentals - Home</title>
-    <!-- Add CSS file -->
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+    <title>NUSrentals - Landing Page</title>
+    <style>
+        .dropbtn {
+            background-color: #3498DB;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            left: 200px;
+
+        }
+
+        .dropbtn:hover,
+        .dropbtn:focus {
+            background-color: #2980B9;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            overflow: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown a:hover {
+            background-color: #ddd;
+        }
+
+        .show {
+            display: block;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5F5F5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav {
+            margin-left: 30px;
+        }
+
+        button {
+            background-color: #005EA7;
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #004C95;
+        }
+
+        h1,
+        h2 {
+            color: #005EA7;
+        }
+
+        main {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        article {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+
+        footer {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #CCCCCC;
+        }
+    </style>
 </head>
+
 <body>
+    <header>
+        <h1>NUSrentals - Rental portal</h1>
+    </header>
+    <h2 align="left">Welcome, {{userID}}</h2>
+    <div class="dropdown">
+        <button onclick="myFunction()" class="dropbtn">Menu</button>
+        <div id="myDropdown" class="dropdown-content">
+            <a href="/home">Home</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
     <script>
-        function bookApartment() {
-            const response = await fetch("137.132.216.139:1234/book"), {
-                method: 'POST',
-                headers:{
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: '{
-                    "token"
-                }'
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function myFunction() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
                 }
-            } 
+            }
         }
     </script>
+    <body>
+<h2>Featured Listings</h2>
+=======
     <header>
         <h1>NUSrentals - Housing Types</h1>
         <h1>Welcome, {{userID}}</h1>
@@ -39,13 +183,20 @@
 </form>
     <main>
         <section>
-            {% for description, image_name in images %}
-            <article>
-                <h3>{{ description }}</h3>
-                <img src="{{ url_for('static', filename='images/' + image_name) }}" alt="{{ description }}">
-            </article>
+            {% for listing in preferredlisting %}
+            <div class='listing'>
+                <p>{{ listing['property_id'] }}</p>
+                <h2>{{ listing['address'] }}</h2>
+                <p>{{ listing['property_type'] }}</p>
+                <p>{{ listing['num_rooms'] }}</p>
+                <p>{{ listing['room_rate'] }}</p>
+                <form action="/property" method="post">
+                    <button name="getproperty" value= {{ listing['property_id'] }}>See Listing</button>
+                </form>
+            </div>
             {% endfor %}
         </section>
+    </body>
     </main>
     </header>
     <main>
@@ -78,6 +229,5 @@
     <footer>
         <p>&copy; 2023 NUSrentals. All rights reserved.</p>
     </footer>
-    
-</body>
+
 </html>
