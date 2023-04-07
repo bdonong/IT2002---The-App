@@ -469,7 +469,7 @@ def view_reviews():
                                   FROM booking b
                                   LEFT JOIN property p
                                   ON b.property_id = p.property_id
-                                  WHERE b.student_id = {user_id}
+                                  WHERE b.student_id = {user_id};
                                   AND b.status = 'confirmed';
                                 """
         try:
