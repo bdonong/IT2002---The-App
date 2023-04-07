@@ -351,7 +351,7 @@
             {% for listing in preferredlisting %}
             <article>
                 <h3>{{ listing['address'] }} </h3>
-                <img src="html_images/pgp-house-blocks.png" alt="Listing 1">
+                <img src="{{ url_for('static', filename='images/' ~ listing['property_id'] ~ '.jpg') }}"class="image"/>
                 <p>{{ listing['property_type'] }}</p> 
                 <form action="/property" method="post">
                     <button name="getproperty" value= {{ listing['property_id'] }}>See Listing</button>

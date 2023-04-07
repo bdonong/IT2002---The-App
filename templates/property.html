@@ -171,7 +171,7 @@ window.onclick = function(event) {
         {% for property in currlisting %}
         <div class="property">
             <h2>Apartment for Rent</h2>
-            <img src="html_images/1.png" alt="Apartment">
+            <img src="{{ url_for('static', filename='images/' ~ property['property_id'] ~ '.jpg') }}"class="image"/>
             <h3>Location</h3>
             <p>{{ property['address'] }}</p>
             <h3>Cost</h3>

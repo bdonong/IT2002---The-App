@@ -17,7 +17,7 @@ import time
 import datetime
 # ? web-based applications written in flask are simply called apps are initialized in this format from the Flask base class. You may see the contents of `__name__` by hovering on it while debugging if you're curious
 app = Flask(__name__)
-
+import os
 # ? Just enabling the flask app to be able to communicate with any request source
 CORS(app)
 
@@ -33,6 +33,8 @@ engine = sqlalchemy.create_engine(
 db = engine.connect()
 ## Secret key for sessions
 secret_key = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+
+## Config for photos being shown in the folder
 today = date.today()
 # ? A dictionary containing
 data_types = {
@@ -275,15 +277,15 @@ def create_users_table():
 @app.route("/", methods = ['GET'])
 def landing_page():
     cookies = request.cookies.get('session_cookies')
+    listings = f"SELECT * FROM property WHERE availability = 'yes' ORDER BY room_rate LIMIT 3"
+    statement = sqlalchemy.text(listings)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
     if get_user_cookies(cookies) != None:
-        listings = f"SELECT * FROM property WHERE availability = 'yes' ORDER BY room_rate LIMIT 3"
-        statement = sqlalchemy.text(listings)
-        res = db.execute(statement)
-        db.commit()
-        res_tuple = res.fetchall()
         return render_template('home.html', userID=get_user_cookies(cookies), preferredlisting = res_tuple)
     else:
-        return render_template('landing.html')
+        return render_template('landing.html', preferredlisting = res_tuple)
 
 # Home page of the website
 @app.route('/home', methods = ['GET', 'POST'])
@@ -331,13 +333,16 @@ def login():
 # Create a route for the signout of user
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         cookies = request.cookies.get('session_cookies')
         remove_command = f"UPDATE users SET session_cookies = null WHERE session_cookies = '{cookies}'"
         statement = sqlalchemy.text(remove_command)
         db.execute(statement)
         db.commit()
-        return render_template('landing.html')
+        ## Set cookies
+        resp = redirect(url_for('landing_page'))
+        resp.set_cookie('session_cookies', '0')
+        return resp
     return render_template('landing.html')
     
 # Create a route for the sign up page
@@ -429,9 +434,16 @@ def edit_user_profile():
         user_id = get_user_id(cookies)
         field_to_edit = request.form['field']
         updated_field = request.form['updated']
-        update_query = f"""UPDATE users
-                           SET {field_to_edit} = '{updated_field}'
-                           WHERE user_id = {user_id};"""
+        if field_to_edit != "password":
+            update_query = f"""UPDATE users
+                            SET {field_to_edit} = '{updated_field}'
+                            WHERE user_id = {user_id};"""
+        elif field_to_edit== "password":
+            passwordhash = str(sha256(updated_field.encode('utf-8')).hexdigest())
+            update_query = f"""UPDATE users
+                            SET password_hash = '{passwordhash}'
+                            WHERE user_id = {user_id};"""
+
         try:
             db.execute(sqlalchemy.text(update_query))
             db.commit()
@@ -666,15 +678,15 @@ def property_list():
         if filter_type == "size":
             size = request.form['size']
             if size == "1room":
-                sql_size = "1 Room"
+                sql_size = 1
             elif size == "2room":
-                sql_size = "2 Room"
+                sql_size = 2
             elif size == "3room":
-                sql_size = "3 Room"
+                sql_size = 3
             elif size == "4room":
-                sql_size = "4 Room"
+                sql_size = 4
             elif size == "5room":
-                sql_size = "5 Room"
+                sql_size = 5
             res = filter_size(sql_size)
         elif filter_type == "price":
             if request.form['price'] == "lowhigh":
@@ -698,7 +710,7 @@ def property_list():
 
 
 def filter_size(type):
-    find_property = f"SELECT * from property WHERE property_type = '{type}'"
+    find_property = f"SELECT * from property WHERE num_rooms = {type}"
     statement = sqlalchemy.text(find_property)
     res = db.execute(statement)
     db.commit()
