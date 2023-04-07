@@ -6,7 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NUSrentals - Landing Page</title>
     <style>
+/* Navbar container */
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  font-family: Arial;
+}
 
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* The dropdown container */
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+/* Dropdown button */
+.dropdown .dropbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit; /* Important for vertical align on mobile phones */
+  margin: 0; /* Important for vertical align on mobile phones */
+}
+
+/* Add a red background color to navbar links on hover */
+.navbar a:hover, .dropdown:hover .dropbtn {
+  background-color: red;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+/* Add a grey background color to dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
         .dropdown {
             position: relative;
             display: inline-block;
@@ -167,89 +235,129 @@
         <h1>NUSrentals - Rental portal</h1>
     </header>
     <h2 text-align="centre">Welcome, {{userID}}</h2>
-    <div class="button-container">
-        <a href="/user_profile" class="profile-btn">Profile</a>
-        <div class="dropdown">
-            <button onclick="myFunction()" class="dropbtn">Menu</button>
-            <div id="myDropdown" class="dropdown-content">
-                <a href="/home">Home</a>
-                <a href="/user_profile">Profile</a>
-                <a href="/logout">Logout</a>
-            </div>
+    <div class="navbar">
+        <a href="/home">Home</a>
+        <a href="/user_profile">Profile</a>
+        <a href="/logout">Logout</a>
         </div>
-    </div>
-
-    <script>
-        /* When the user clicks on the button, 
-        toggle between hiding and showing the dropdown content */
-        function myFunction() {
-            document.getElementById("myDropdown").classList.toggle("show");
-        }
-
-        // Close the dropdown if the user clicks outside of it
-        window.onclick = function(event) {
-            if (!event.target.matches('.dropbtn')) {
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                var i;
-                for (i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-    </script>
+      </div>
     <body>
-<h2>Featured Listings</h2>
-=======
     <header>
-        <h1>NUSrentals - Housing Types</h1>
+        <h1>NUSrentals - Featured Listings</h1>
     </header>
 </form>
     <main>
-        <section>
-            {% for listing in preferredlisting %}
-            <div class='listing'>
-                <p>{{ listing['property_id'] }}</p>
-                <h2>{{ listing['address'] }}</h2>
-                <p>{{ listing['property_type'] }}</p>
-                <p>{{ listing['num_rooms'] }}</p>
-                <p>{{ listing['room_rate'] }}</p>
-                <form action="/property" method="post">
-                    <button name="getproperty" value= {{ listing['property_id'] }}>See Listing</button>
-                </form>
-            </div>
-            {% endfor %}
-        </section>
     </body>
     </main>
     </header>
     <main>
+        <h2> Search for your property</h2>
+        <h3> Filters </h3>
+        <script>
+            function myFunction(e) {
+                switch (e.target.value) {
+                    case '1':
+                        document.getElementById('id_choice_1_container').style.display = "block";
+                        document.getElementById('id_choice_2_container').style.display = "none";
+                        document.getElementById('id_choice_3_container').style.display = "none";
+                        document.getElementById('id_choice_4_container').style.display = "none";
+                        break;
+                    case '2':
+                        document.getElementById('id_choice_1_container').style.display = "none";
+                        document.getElementById('id_choice_2_container').style.display = "block";
+                        document.getElementById('id_choice_3_container').style.display = "none";
+                        document.getElementById('id_choice_4_container').style.display = "none";
+                        break;
+                    case '3':
+                        document.getElementById('id_choice_1_container').style.display = "none";
+                        document.getElementById('id_choice_2_container').style.display = "none";
+                        document.getElementById('id_choice_3_container').style.display = "block";
+                        document.getElementById('id_choice_4_container').style.display = "none";
+                        break;
+                    case '4':
+                        document.getElementById('id_choice_1_container').style.display = "none";
+                        document.getElementById('id_choice_2_container').style.display = "none";
+                        document.getElementById('id_choice_3_container').style.display = "none";
+                        document.getElementById('id_choice_4_container').style.display = "block";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        </script>
+        
+        
+        <fieldset>
+            <div class="form-row field-type">
+                <div>
+                    <label class="required" for="id_type">Select Choices:</label>
+                    <select name="type" id="id_type" onchange="myFunction(event)">
+                <option value="1" selected>Price</option>
+                <option value="2">Size</option>
+                <option value="3">Newest First</option>
+                <option value="4">Availability</option>
+              </select>
+                </div>
+            </div>
+        
+            <div id="id_choice_1_container">
+                <label for="id_choice_1">Choose ranking</label>
+                <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+                <select id="price" name="price">
+                <option value="lowhigh">Low To High</option>
+                <option value="highlow">High To Low</option>
+                <input type="hidden" name="type" value=price>
+                <input type="submit" name="choice_1" value="Submit" onchange="myFunction(event)" >
+                </form>
+            </div>
+        
+            <div id="id_choice_2_container" style="display: none">
+                <label for="id_choice_2">Choose desired size</label>
+                <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+                <select id="size" name="size">
+                <option value="1room">1 Room Flat</option>
+                <option value="2room">2 Room Flat</option>
+                <option value="3room">3 Room Flat</option>
+                <option value="4room">4 Room Flat</option>
+                <option value="5room">5 Room Flat</option>
+                <input type="hidden" name="type" value=size>
+                <input type="submit" name="choice_2" value="Submit" onchange="myFunction(event)" >
+                </form>
+            </div>
+           <div id="id_choice_3_container" style="display: none">
+                <label for="id_choice_3">Choose Age Listing</label>
+                <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+                <select id="size" name="size">
+                <option value="new">Newest First</option>
+                <option value="old">Oldest First</option>
+                <input type="hidden" name="type" value=date>
+                <input type="submit" name="choice_3" value="Submit" onchange="myFunction(event)" >
+                </form>
+            </div>
+           <div id="id_choice_4_container" style="display: none">
+                <label for="id_choice_4">Availability</label>
+                <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+                <p>Start Time:</p>
+                <input type="date" id="date1" name ="startdate">
+                <p>End Time:</p>
+                <input type="date" id="date2" name ="enddate">
+                <input type="hidden" name="type" value=senddate>
+                <input type="submit" name="choice_4" value="Submit" onchange="myFunction(event)" >
+                </form>
+            </div>
+        </fieldset>
         <h2>Featured Listings</h2>
         <section>
+            {% for listing in preferredlisting %}
             <article>
-                <h3>Listing 1</h3>
+                <h3>{{ listing['address'] }} </h3>
                 <img src="html_images/pgp-house-blocks.png" alt="Listing 1">
-                <p>Furnished Apartments</p> 
-                <button onclick="bookApartment()">Book</button>
-
+                <p>{{ listing['property_type'] }}</p> 
+                <form action="/property" method="post">
+                    <button name="getproperty" value= {{ listing['property_id'] }}>See Listing</button>
+                </form>
             </article>
-
-            <article>
-                <h3>Listing 2</h3>
-                <img src="html_images/2017-residential-college-4-6_1.png" alt="Listing 2">
-                <p>Communal Living Spaces</p> 
-                <button button onclick="location.href='/book'"> Book </button>
-            </article>
-
-            <article>
-                <h3>Listing 3</h3>
-                <img src="html_images/2017-eusoff-hall-2_2.png" alt="Listing 3">
-                <p>Shared Accomodations</p> 
-                <button button onclick="location.href='/book'"> Book </button>
-            </article>
-
+            {% endfor %}
         </section>
     </main>
     <footer>
