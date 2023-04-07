@@ -262,6 +262,7 @@
         </div>
     </fieldset>
 	<ul>
+        {{ invalid }}
 	    {% for listing in filtered %}
 		<li>
 			<h2>{{ listing["address"]}}</h2>

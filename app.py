@@ -833,6 +833,12 @@ def book():
             end_date = bookingdetails[0][4].strftime("%d/%m/%Y")
             if bookingdetails != None:
                 return render_template('confirmation.html', booking_id = bookingid, property_id = property_id, start_date = start_date, end_date = end_date)
+        else:
+            error = Markup('''<div class="alert">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  Timeframe unavailable, choose another timeframe.
+</div>''')
+            return render_template('property.html', invalid = error)
     return redirect(url_for("home")) 
 
 
