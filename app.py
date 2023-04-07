@@ -397,7 +397,7 @@ def user_profile():
     if get_user_id(cookies) != None:
         user_id = get_user_id(cookies)
         user_query = f"SELECT * FROM users WHERE user_id = {user_id};"
-        prev_bookings_query = f"""SELECT b.booking_id, p.address, p.property_type, b.start_date, b.end_date, b.booking_date
+        prev_bookings_query = f"""SELECT b.booking_id, p.address, p.property_type, b.start_date, b.end_date, b.booking_date, b.status
                                   FROM booking b
                                   LEFT JOIN property p
                                   ON b.property_id = p.property_id
@@ -426,7 +426,49 @@ def user_profile():
             return Response(str(e), 403)
     else:
         return redirect("/login") 
+@app.route('/confirmbooking', methods =['POST'])
+def confbooking():
+    cookies = request.cookies.get('session_cookies')
+    booking_id = request.form['bookingID']
+    ## Checking if the user is authorized to change the property
+    user_id = get_user_id(cookies)
+    if checkauthproperty(user_id, booking_id) == True:
+        if getcurrstatus(booking_id) == "confirmed":
+            toggleproperty(booking_id, "processing")
+        elif getcurrstatus(booking_id) == "processing":
+            toggleproperty(booking_id, "confirmed")
+    return redirect("/user_profile")
+
+def checkauthproperty(user_id, booking):
+    # Check for the property and the user_id, ensuring that the result is not null
+    user_id_statement = f"SELECT * from booking WHERE booking_id = {booking} and student_id = {user_id}"
+    statement = sqlalchemy.text(user_id_statement)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    if res_tuple != None:
+        return True
+    else:
+        return False
+def getcurrstatus(booking):
+    property_status = f"SELECT status from booking WHERE booking_id = {booking}"
+    statement = sqlalchemy.text(property_status)
+    res = db.execute(statement)
+    db.commit()
+    res_tuple = res.fetchall()
+    if res_tuple[0][0] == "processing":
+
+        return "processing"
+    else:
+        return "confirmed"
     
+def toggleproperty(booking, status):
+    property_update = f"UPDATE booking SET status = '{status}' WHERE booking_id = {booking}"
+    statement = sqlalchemy.text(property_update)
+    res = db.execute(statement)
+    db.commit()
+    return None
+
 @app.route('/user_profile/edit', methods = ['POST'])
 def edit_user_profile():
     cookies = request.cookies.get('session_cookies')
@@ -469,7 +511,7 @@ def view_reviews():
                                   FROM booking b
                                   LEFT JOIN property p
                                   ON b.property_id = p.property_id
-                                  WHERE b.student_id = {user_id};
+                                  WHERE b.student_id = {user_id}
                                   AND b.status = 'confirmed';
                                 """
         try:

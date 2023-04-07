@@ -157,6 +157,8 @@
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Booking Date</th>
+                        <th>Status</th>
+                        <th>Confirmation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,6 +167,12 @@
                         {% for field in booking %}
                         <td>{{ field }}</td>
                         {% endfor %}
+                        <td> 
+                        <form action="/confirmbooking" method="POST">
+                        <input type="hidden" value={{ booking['booking_id'] }} name="bookingID">
+                        <input type="submit" value="Change Status">
+                        </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
