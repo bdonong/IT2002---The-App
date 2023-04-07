@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Property Listings</title>
+	<style>
+	 <style>
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: relative;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            overflow: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown a:hover {
+            background-color: #ddd;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dropbtn, .profile-btn {
+            background-color: #3498DB;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .dropbtn:hover, .profile-btn:hover,
+        .dropbtn:focus, .profile-btn:focus {
+            background-color: #2980B9;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5F5F5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav {
+            margin-left: 30px;
+        }
+
+        button {
+            background-color: #005EA7;
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #004C95;
+        }
+
+        h1,
+        h2 {
+            color: #005EA7;
+        }
+
+        main {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        article {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+
+        footer {
+            background-color: #FFFFFF;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #CCCCCC;
+        }
+    </style>
+ <header>
+        <h1>Welcome to NUSrentals</h1>
+        <nav>
+            <button onclick="location.href='/home'">Home</button>
+        </nav>
+    </header>
+</head>
+<body>
+	<h1>Property Listings</h1>
+    <h3> Filters </h3>
+    <script>
+        function myFunction(e) {
+            switch (e.target.value) {
+                case '1':
+                    document.getElementById('id_choice_1_container').style.display = "block";
+                    document.getElementById('id_choice_2_container').style.display = "none";
+                    document.getElementById('id_choice_3_container').style.display = "none";
+                    document.getElementById('id_choice_4_container').style.display = "none";
+                    break;
+                case '2':
+                    document.getElementById('id_choice_1_container').style.display = "none";
+                    document.getElementById('id_choice_2_container').style.display = "block";
+                    document.getElementById('id_choice_3_container').style.display = "none";
+                    document.getElementById('id_choice_4_container').style.display = "none";
+                    break;
+                case '3':
+                    document.getElementById('id_choice_1_container').style.display = "none";
+                    document.getElementById('id_choice_2_container').style.display = "none";
+                    document.getElementById('id_choice_3_container').style.display = "block";
+                    document.getElementById('id_choice_4_container').style.display = "none";
+                    break;
+                case '4':
+                    document.getElementById('id_choice_1_container').style.display = "none";
+                    document.getElementById('id_choice_2_container').style.display = "none";
+                    document.getElementById('id_choice_3_container').style.display = "none";
+                    document.getElementById('id_choice_4_container').style.display = "block";
+                    break;
+                default:
+                    break;
+            }
+        }
+    </script>
+    
+    
+    <fieldset>
+        <div class="form-row field-type">
+            <div>
+                <label class="required" for="id_type">Select Choices:</label>
+                <select name="type" id="id_type" onchange="myFunction(event)">
+            <option value="1" selected>Price</option>
+            <option value="2">Size</option>
+            <option value="3">Newest First</option>
+            <option value="4">Availability</option>
+          </select>
+            </div>
+        </div>
+    
+        <div id="id_choice_1_container">
+            <label for="id_choice_1">Choose ranking</label>
+            <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+            <select id="price" name="price">
+            <option value="lowhigh">Low To High</option>
+            <option value="highlow">High To Low</option>
+            <input type="hidden" name="type" value=price>
+            <input type="submit" name="choice_1" value="Submit" onchange="myFunction(event)" >
+            </form>
+        </div>
+    
+        <div id="id_choice_2_container" style="display: none">
+            <label for="id_choice_2">Choose desired size</label>
+            <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+            <select id="size" name="size">
+            <option value="1room">1 Room Flat</option>
+            <option value="2room">2 Room Flat</option>
+            <option value="3room">3 Room Flat</option>
+            <option value="4room">4 Room Flat</option>
+            <option value="5room">5 Room Flat</option>
+            <input type="hidden" name="type" value=size>
+            <input type="submit" name="choice_2" value="Submit" onchange="myFunction(event)" >
+            </form>
+        </div>
+       <div id="id_choice_3_container" style="display: none">
+            <label for="id_choice_3">Choose Age Listing</label>
+            <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+            <select id="size" name="size">
+            <option value="new">Newest First</option>
+            <option value="old">Oldest First</option>
+            <input type="hidden" name="type" value=date>
+            <input type="submit" name="choice_3" value="Submit" onchange="myFunction(event)" >
+            </form>
+        </div>
+       <div id="id_choice_4_container" style="display: none">
+            <label for="id_choice_4">Availability</label>
+            <form name ="booking" action="/filter" method="post" onchange="myFunction(event)">
+            <p>Start Time:</p>
+            <input type="date" id="date1" name ="startdate">
+            <p>End Time:</p>
+            <input type="date" id="date2" name ="enddate">
+            <input type="hidden" name="type" value=senddate>
+            <input type="submit" name="choice_4" value="Submit" onchange="myFunction(event)" >
+            </form>
+        </div>
+    </fieldset>
+	<ul>
+	    {% for listing in filtered %}
+		<li>
+			<h2>{{ listing["address"]}}</h2>
+			<img src="{{ url_for('static', filename='images/' ~ listing['property_id'] ~ '.jpg') }}"class="image"/>
+			<p>{{ listing["property_type"]}}</p>
+			<p>Price: {{ listing["room_rate"]}}</p>
+            <form action="/property" method="post">
+            <button name="getproperty" value= {{ listing['property_id'] }}>See Listing</button>
+            </form>
+		</li>
+		{% endfor %}
+	</ul>
+</body>
+</html>
